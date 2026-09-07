@@ -58,6 +58,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # H5 · 卡片画布字体：Noto Sans SC 可变字体（OFL 开源协议，含 Latin 字形）
+  # 当前为全量 17.7MB；发布前评估子集化（常用 3500 字可减至 ~2MB）
+  fonts:
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
