@@ -265,5 +265,7 @@ void main() {
     expect(find.text('Switch state'), findsOneWidget);
     expect(find.text('Focus'), findsOneWidget); // 英雄位英文标签
     expect(find.text('Not on card yet'), findsOneWidget);
+    await expectLater(find.byType(MaterialApp),
+        matchesGoldenFile('goldens/screen1_status_en.png'));
   });
 }
