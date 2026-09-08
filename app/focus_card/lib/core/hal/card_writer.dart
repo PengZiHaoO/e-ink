@@ -49,11 +49,12 @@ abstract class CardWriter {
 
 /// W2 · Mock 实现：800ms 延迟 + 可注入失败率（测重试 UI 用）。
 /// 纯 Dart、可注入 [Random]——单测完全确定性。
+/// [failureRate] 可变：屏2 演示模式的"模拟写入失败"开关直接调它（T3）。
 class MockCardWriter implements CardWriter {
   final Duration delay;
 
   /// 0.0 ~ 1.0
-  final double failureRate;
+  double failureRate;
   final Random _random;
 
   MockCardWriter({

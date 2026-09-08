@@ -13,17 +13,27 @@ enum CardState {
       templateId: 'focusing',
       stateWord: 'FOCUSING',
       labelZh: '专注中',
+      buttonLabelZh: '专注',
       isFocus: true),
-  onBreak(templateId: 'break', stateWord: 'BREAK', labelZh: '休息中'),
+  onBreak(
+      templateId: 'break',
+      stateWord: 'BREAK',
+      labelZh: '休息中',
+      buttonLabelZh: '休息'),
   available(
-      templateId: 'available', stateWord: 'AVAILABLE', labelZh: '可打扰'),
-  away(templateId: 'away', stateWord: 'AWAY', labelZh: '离开'),
-  namecard(templateId: 'card', stateWord: null, labelZh: '名片');
+      templateId: 'available',
+      stateWord: 'AVAILABLE',
+      labelZh: '可打扰',
+      buttonLabelZh: '可打扰'),
+  away(templateId: 'away', stateWord: 'AWAY', labelZh: '离开', buttonLabelZh: '离开'),
+  namecard(
+      templateId: 'card', stateWord: null, labelZh: '名片', buttonLabelZh: '名片');
 
   const CardState({
     required this.templateId,
     required this.stateWord,
     required this.labelZh,
+    required this.buttonLabelZh,
     this.isFocus = false,
   });
 
@@ -33,8 +43,11 @@ enum CardState {
   /// 画布英文大字（名片模板为 null——用 name/title 渲染）
   final String? stateWord;
 
-  /// UI 中文名
+  /// UI 中文名（描述态：「现在」卡/记录列表用，如"专注中"）
   final String labelZh;
+
+  /// 按钮短标签（动作态：屏1 网格用，如"专注"——对齐线框图）
+  final String buttonLabelZh;
 
   /// 统计英雄位标记（R3：专注时长视觉最大）
   final bool isFocus;
