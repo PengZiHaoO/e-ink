@@ -132,7 +132,6 @@ void main() {
       final outcome = await b.orch.submit(prepared);
       expect(outcome.ok, isFalse);
       expect(outcome.error, WriteErrorKind.capacity);
-      expect(outcome.message, contains('容量'));
       expect(fake.writeCalls, 0, reason: '预检拦截，writer 未被调用');
       expect(b.machine.state.lastWriteStatus, 'capacity');
       expect(b.machine.state.currentState, CardState.available,
@@ -147,7 +146,7 @@ void main() {
       final outcome = await b.orch.submit(prepared);
 
       expect(outcome.ok, isFalse);
-      expect(outcome.message, isNotEmpty);
+      expect(outcome.error, WriteErrorKind.timeout);
       expect(b.machine.state.currentState, CardState.available);
       expect(b.machine.state.lastWriteStatus, 'timeout');
       expect(b.sessions, isEmpty);

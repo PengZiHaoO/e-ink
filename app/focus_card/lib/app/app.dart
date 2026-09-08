@@ -1,10 +1,12 @@
 /// 应用壳：FocusCardApp + LaunchGate（首启流：欢迎 → 绑定 → 主页）。
+/// T3.5：locale 由 LocaleController 驱动，热切换不重启。
 library;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/device/card_binding.dart';
+import '../l10n/app_localizations.dart';
 import '../screens/bind_page.dart';
 import '../screens/main_page.dart';
 import '../screens/welcome_page.dart';
@@ -17,11 +19,17 @@ class FocusCardApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'focus_card',
-      debugShowCheckedModeBanner: false,
-      theme: T.light(),
-      home: LaunchGate(deps: deps),
+    return ListenableBuilder(
+      listenable: deps.localeController,
+      builder: (context, _) => MaterialApp(
+        title: 'focus_card',
+        debugShowCheckedModeBanner: false,
+        theme: T.light(),
+        locale: deps.localeController.locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: LaunchGate(deps: deps),
+      ),
     );
   }
 }

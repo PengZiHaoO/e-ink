@@ -1,5 +1,5 @@
-/// 屏1「状态」：现在卡（当前状态迷你预览）+ 切换状态网格。
-/// 功能映射（全景 §5）：S1/S2 网格 · S4 现在卡 · D3/P 设置溢出 · N3 由 MainPage 横幅承载。
+/// 屏1「状态」：现在卡（当前状态迷你预览）+ 专注英雄位 + 2×2 状态网格。
+/// 功能映射（全景 §5）：S1/S2 网格 · S4 现在卡 · D3/P 设置溢出 · 语言开关（T3.5）。
 library;
 
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import '../app/deps.dart';
 import '../app/theme.dart';
 import '../core/hal/card_bitmap.dart';
 import '../core/state/card_state.dart';
+import '../l10n/app_localizations.dart';
 import 'write_screen.dart';
 
 /// 2×2 网格中的四个次级状态（专注=英雄位单独整行，产品主打）
@@ -31,8 +32,12 @@ class StatusScreen extends StatelessWidget {
   final AppDeps deps;
   const StatusScreen({super.key, required this.deps});
 
+  bool _isCurrent(CardState s) =>
+      deps.machine.state.isCardSynced && deps.machine.state.currentState == s;
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ListenableBuilder(
       listenable: deps.machine,
       builder: (context, _) {
@@ -48,7 +53,7 @@ class StatusScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text('状态', style: T.title),
+                        Text(l.statusTitle, style: T.title),
                         const Spacer(),
                         _OverflowMenu(deps: deps),
                       ],
@@ -56,16 +61,18 @@ class StatusScreen extends StatelessWidget {
                     const SizedBox(height: T.s2),
                     _NowCard(deps: deps),
                     const SizedBox(height: T.s3),
-                    Text('切换状态', style: T.body.copyWith(color: T.inkSub)),
+                    Text(l.switchTitle,
+                        style: T.body.copyWith(color: T.inkSub)),
                     const SizedBox(height: T.s2),
-                    // 专注 = 英雄位：整行 + 翻转即写入提示（B 轮评审：专注最重要）
+                    // 专注 = 英雄位：整行 + 翻转即写入提示
                     SizedBox(
                       width: double.infinity,
                       height: 72,
                       child: _StateCell(
                         state: CardState.focusing,
                         isCurrent: _isCurrent(CardState.focusing),
-                        hint: '翻转即写入',
+                        hint: l.flipHint,
+                        zh: deps.isZh,
                         horizontal: true,
                         onTap: () => _openWrite(context, CardState.focusing),
                       ),
@@ -83,6 +90,7 @@ class StatusScreen extends StatelessWidget {
                           _StateCell(
                             state: s,
                             isCurrent: _isCurrent(s),
+                            zh: deps.isZh,
                             onTap: () => _openWrite(context, s),
                           ),
                       ],
@@ -102,14 +110,9 @@ class StatusScreen extends StatelessWidget {
       builder: (_) => WriteScreen(deps: deps, targetState: s),
     ));
   }
-
-  /// 「卡上」= 曾成功写入且当前状态（未写卡时任何格不高亮）
-  bool _isCurrent(CardState s) =>
-      deps.machine.state.isCardSynced && deps.machine.state.currentState == s;
 }
 
 /// 「现在」卡：当前已提交状态的迷你预览（S4）+ 上卡时间。
-/// 未写过卡 → 诚实占位文案。
 class _NowCard extends StatefulWidget {
   final AppDeps deps;
   const _NowCard({required this.deps});
@@ -134,8 +137,6 @@ class _NowCardState extends State<_NowCard> {
     _render();
   }
 
-  /// 状态机每次 notify 都会触发 didUpdateWidget 路径外的重建——
-  /// 由父级 ListenableBuilder 重建本组件，didUpdateWidget 捕获变化。
   String get _key {
     final s = widget.deps.machine.state;
     return '${s.currentState.name}|${s.since.toIso8601String()}|${s.customText ?? ''}';
@@ -165,9 +166,14 @@ class _NowCardState extends State<_NowCard> {
     });
   }
 
+  String _hhmm(DateTime t) =>
+      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final s = widget.deps.machine.state;
+    final zh = widget.deps.isZh;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(T.s2),
@@ -187,7 +193,7 @@ class _NowCardState extends State<_NowCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('现在', style: T.caption),
+                Text(l.nowLabel, style: T.caption),
                 const SizedBox(height: T.s05),
                 Row(
                   children: [
@@ -196,13 +202,15 @@ class _NowCardState extends State<_NowCard> {
                       height: 10,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: s.isCardSynced ? T.accent : T.line,
+                        color: s.isCardSynced ? T.ink : T.line,
                       ),
                     ),
                     const SizedBox(width: T.s1),
                     Flexible(
                       child: Text(
-                        s.isCardSynced ? s.currentState.labelZh : '还没写过卡',
+                        s.isCardSynced
+                            ? s.currentState.label(zh)
+                            : l.notWritten,
                         style: T.title,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -212,8 +220,8 @@ class _NowCardState extends State<_NowCard> {
                 const SizedBox(height: T.s05),
                 Text(
                   s.isCardSynced
-                      ? '${s.since.hour.toString().padLeft(2, '0')}:${s.since.minute.toString().padLeft(2, '0')} 写入'
-                      : '选一个状态，翻转贴卡开始',
+                      ? l.writtenAt(_hhmm(s.since))
+                      : l.notWrittenHint,
                   style: T.caption,
                 ),
               ],
@@ -225,21 +233,19 @@ class _NowCardState extends State<_NowCard> {
   }
 }
 
-/// 状态按钮格（主行动在屏2，这里全部是选择格 → A6 合规）。
-/// 视觉语义（B 轮评审定稿）：**状态强调 = 墨黑 monochrome**（当前态 2px 墨边）；
-/// 橙色只属于"行动"（写入按钮/演示标记），不用于状态。
+/// 状态按钮格。视觉语义：状态强调=墨黑 monochrome；橙色=行动色专用。
 class _StateCell extends StatelessWidget {
   final CardState state;
   final bool isCurrent;
+  final bool zh;
   final bool horizontal;
-
-  /// 英雄位提示语（专注：翻转即写入）
   final String? hint;
   final VoidCallback onTap;
 
   const _StateCell({
     required this.state,
     required this.isCurrent,
+    required this.zh,
     required this.onTap,
     this.horizontal = false,
     this.hint,
@@ -247,8 +253,8 @@ class _StateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = T.ink;
-    final caption = isCurrent ? '卡上' : hint;
+    final l = AppLocalizations.of(context);
+    final caption = isCurrent ? l.onCard : hint;
     return Material(
       color: T.paper,
       borderRadius: BorderRadius.circular(T.rButton),
@@ -258,18 +264,18 @@ class _StateCell extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(T.rButton),
-            border: Border.all(color: isCurrent ? T.ink : T.line, width: isCurrent ? 2 : 1),
+            border: Border.all(
+                color: isCurrent ? T.ink : T.line, width: isCurrent ? 2 : 1),
           ),
           padding: const EdgeInsets.all(T.s1),
           child: horizontal
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(stateIcon(state), color: fg, size: 24),
+                    Icon(stateIcon(state), color: T.ink, size: 24),
                     const SizedBox(width: T.s1),
-                    Text(state.buttonLabelZh,
-                        style: T.body.copyWith(
-                            fontWeight: FontWeight.w700, color: fg)),
+                    Text(state.buttonLabel(zh),
+                        style: T.body.copyWith(fontWeight: FontWeight.w700)),
                     if (caption != null) ...[
                       const SizedBox(width: T.s1),
                       Text('· $caption', style: T.caption),
@@ -279,11 +285,10 @@ class _StateCell extends StatelessWidget {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(stateIcon(state), color: fg, size: 28),
+                    Icon(stateIcon(state), color: T.ink, size: 28),
                     const SizedBox(height: T.s1),
-                    Text(state.buttonLabelZh,
-                        style: T.body.copyWith(
-                            fontWeight: FontWeight.w700, color: fg)),
+                    Text(state.buttonLabel(zh),
+                        style: T.body.copyWith(fontWeight: FontWeight.w700)),
                     if (caption != null) Text(caption, style: T.caption),
                   ],
                 ),
@@ -299,9 +304,9 @@ class _OverflowMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: T.ink),
-      tooltip: '更多',
       onSelected: (v) {
         if (v == 'about') {
           showAboutDialog(
@@ -310,25 +315,30 @@ class _OverflowMenu extends StatelessWidget {
             applicationVersion: 'M1 · demo',
             children: [
               Text('profile: ${deps.profile.profileId}', style: T.caption),
-              Text('writer: ${deps.isMock ? "Mock（演示）" : "NFC"}',
-                  style: T.caption),
-              const Text('状态卡，专注为主打 —— 让你的状态，看得见',
-                  style: T.caption),
+              Text('writer: ${deps.isMock ? "Mock" : "NFC"}', style: T.caption),
+              Text(l.aboutTagline, style: T.caption),
             ],
           );
+        } else if (v == 'lang') {
+          deps.localeController.toggle();
         }
       },
-      itemBuilder: (context) => const [
-        PopupMenuItem(value: 'about', child: Text('关于')),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'lang',
+          child: Text(
+              '${l.menuLanguage}: ${deps.isZh ? "中文" : "English"} ⇄'),
+        ),
+        PopupMenuItem(value: 'about', child: Text(l.menuAbout)),
         PopupMenuItem(
           value: 'profile',
           enabled: false,
-          child: Text('名片档案（M4）', style: T.caption),
+          child: Text(l.menuProfile, style: T.caption),
         ),
         PopupMenuItem(
           value: 'unbind',
           enabled: false,
-          child: Text('解绑卡片（M3）', style: T.caption),
+          child: Text(l.menuUnbind, style: T.caption),
         ),
       ],
     );

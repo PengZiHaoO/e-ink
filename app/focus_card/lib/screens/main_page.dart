@@ -1,10 +1,11 @@
-/// 主框架：底部两 Tab（状态/记录）+ N3 演示模式横幅。
+/// 主框架：底部两 Tab（状态/记录）+ N3 演示模式横幅（文案走 l10n）。
 library;
 
 import 'package:flutter/material.dart';
 
 import '../app/deps.dart';
 import '../app/theme.dart';
+import '../l10n/app_localizations.dart';
 import 'records_screen.dart';
 import 'status_screen.dart';
 
@@ -21,6 +22,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       body: Column(
         children: [
@@ -40,16 +42,16 @@ class _MainPageState extends State<MainPage> {
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         height: 64,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.adjust_outlined),
-            selectedIcon: Icon(Icons.adjust, color: T.accent),
-            label: '状态',
+            icon: const Icon(Icons.adjust_outlined),
+            selectedIcon: const Icon(Icons.adjust, color: T.accent),
+            label: l.tabStatus,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart, color: T.accent),
-            label: '记录',
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart, color: T.accent),
+            label: l.tabRecords,
           ),
         ],
       ),
@@ -63,11 +65,11 @@ class _DemoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       color: T.accent.withValues(alpha: 0.08),
-      padding: const EdgeInsets.symmetric(
-          horizontal: T.s2, vertical: T.s1),
+      padding: const EdgeInsets.symmetric(horizontal: T.s2, vertical: T.s1),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -78,7 +80,7 @@ class _DemoBanner extends StatelessWidget {
                 const BoxDecoration(shape: BoxShape.circle, color: T.accent),
           ),
           const SizedBox(width: T.s1),
-          Text('演示模式 · 模拟写入，未连接真实卡片', style: T.caption),
+          Text(l.demoBanner, style: T.caption),
         ],
       ),
     );

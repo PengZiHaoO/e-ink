@@ -243,4 +243,27 @@ void main() {
     expect(prefs.getBool(PrefsKeys.welcomeDone), isTrue);
     expect(CardBinding.decode(prefs.getString(PrefsKeys.binding)), isNotNull);
   });
+
+  testWidgets('T3.5 语言热切换：zh→en 标签即时变英文', (tester) async {
+    _phoneViewport(tester);
+    _seedPrefs(uid: 'MOCK-EN');
+    final deps = _testDeps();
+    await deps.machine.load();
+
+    await tester.runAsync(() async {
+      await tester.pumpWidget(FocusCardApp(deps: deps));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+      await tester.pump();
+    });
+    expect(find.text('切换状态'), findsOneWidget);
+
+    await deps.localeController.setLocale(const Locale('en'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Switch state'), findsOneWidget);
+    expect(find.text('Focus'), findsOneWidget); // 英雄位英文标签
+    expect(find.text('Not on card yet'), findsOneWidget);
+  });
 }

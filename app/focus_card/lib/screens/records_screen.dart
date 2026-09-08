@@ -1,11 +1,12 @@
-/// 屏3「记录」—— M1 过渡版：静默落库已在跑（S3→SessionLog），
-/// 正式统计/streak/补记在 T5（M2）建成。当前显示会话流水证明管线通。
+/// 屏3「记录」—— M1 过渡版（文案走 l10n）：会话流水证明打点管线通；
+/// 正式统计/streak/补记在 T5（M2）。
 library;
 
 import 'package:flutter/material.dart';
 
 import '../app/deps.dart';
 import '../app/theme.dart';
+import '../l10n/app_localizations.dart';
 
 class RecordsScreen extends StatelessWidget {
   final AppDeps deps;
@@ -16,6 +17,8 @@ class RecordsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final zh = deps.isZh;
     return ListenableBuilder(
       listenable: deps.sessionLog,
       builder: (context, _) {
@@ -30,16 +33,16 @@ class RecordsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('记录', style: T.title),
+                    Text(l.recordsTitle, style: T.title),
                     const SizedBox(height: T.s1),
-                    Text('统计页建设中（M2）—— 会话已在静默记录',
-                        style: T.caption),
+                    Text(l.recordsBuilding, style: T.caption),
                     const SizedBox(height: T.s3),
                     Text('${log.count}', style: T.display),
-                    Text('已记录会话', style: T.body.copyWith(color: T.inkSub)),
+                    Text(l.recordedSessions,
+                        style: T.body.copyWith(color: T.inkSub)),
                     const SizedBox(height: T.s3),
                     if (log.records.isEmpty)
-                      Text('切换一次状态，这里就会出现第一条会话',
+                      Text(l.recordsEmpty,
                           style: T.body.copyWith(color: T.inkSub))
                     else
                       for (final r in log.records.reversed)
@@ -62,7 +65,7 @@ class RecordsScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: T.s1),
-                              Text(r.state.buttonLabelZh, style: T.body),
+                              Text(r.state.buttonLabel(zh), style: T.body),
                               const Spacer(),
                               Text(
                                 '${_hhmm(r.start)}–${_hhmm(r.end)} · ${r.duration.inMinutes}m',

@@ -1,7 +1,4 @@
-/// D1 · 轻配对仪式（M1 Mock 版，≤30 秒、3 步、可跳过）。
-///
-/// 发现（Mock 1.2s）→ 命名 → ✓ 庆祝。兜底：跳过也能用（M3 首写静默绑定）。
-/// M3/T6 替换点：mockUid → 真实 NFC UID 发现；prefs → sqflite CardBinding 表。
+/// D1 · 轻配对仪式（M1 Mock 版，≤30 秒、3 步、可跳过；文案走 l10n）。
 library;
 
 import 'dart:async';
@@ -12,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app/deps.dart';
 import '../app/theme.dart';
 import '../core/device/card_binding.dart';
+import '../l10n/app_localizations.dart';
 
 class BindPage extends StatefulWidget {
   final VoidCallback onDone;
@@ -25,33 +23,45 @@ class _BindPageState extends State<BindPage> {
   /// 0=发现中 1=已发现（命名） 2=庆祝
   int _step = 0;
   late final String _uid = CardBinding.mockUid();
-  final _nameController = TextEditingController(text: '我的专注卡');
+  late TextEditingController _nameController;
+  bool _nameInit = false;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Mock 发现过程（M3：真实 NFC 会话发现标签）
+    // Localizations 不能在 initState 查（InheritedWidget 限制）→ didChangeDependencies
     _timer = Timer(const Duration(milliseconds: 1200), () {
       if (mounted) setState(() => _step = 1);
     });
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_nameInit) {
+      _nameInit = true;
+      _nameController = TextEditingController(
+          text: AppLocalizations.of(context).bindDefaultName);
+    }
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
-    _nameController.dispose();
+    if (_nameInit) _nameController.dispose();
     super.dispose();
   }
 
   Future<void> _complete({required String name}) async {
+    final l = AppLocalizations.of(context); // await 前捕获，避免跨异步用 context
     setState(() => _step = 2);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       PrefsKeys.binding,
       CardBinding.encode(CardBinding(
         uid: _uid,
-        name: name.trim().isEmpty ? '我的专注卡' : name.trim(),
+        name: name.trim().isEmpty ? l.bindDefaultName : name.trim(),
         boundAt: DateTime.now(),
       )),
     );
@@ -62,6 +72,7 @@ class _BindPageState extends State<BindPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -79,11 +90,12 @@ class _BindPageState extends State<BindPage> {
                         child: CircularProgressIndicator(color: T.accent),
                       ),
                       const SizedBox(height: T.s4),
-                      Text('认识你的卡片', style: T.display),
+                      Text(l.bindDiscovering, style: T.display),
                       const SizedBox(height: T.s2),
-                      Text('把手机贴住卡片…', style: T.body.copyWith(color: T.inkSub)),
+                      Text(l.bindDiscoverHint,
+                          style: T.body.copyWith(color: T.inkSub)),
                       const SizedBox(height: T.s1),
-                      Text('（演示模式：模拟发现过程）', style: T.caption),
+                      Text(l.bindMockNote, style: T.caption),
                     ],
                   ),
                 1 => Column(
@@ -92,16 +104,16 @@ class _BindPageState extends State<BindPage> {
                       const Icon(Icons.check_circle_outline,
                           size: 64, color: T.ink),
                       const SizedBox(height: T.s3),
-                      Text('发现卡片', style: T.title),
+                      Text(l.bindFound, style: T.title),
                       const SizedBox(height: T.s1),
-                      Text('编号 $_uid', style: T.caption),
+                      Text('${l.bindUidPrefix} $_uid', style: T.caption),
                       const SizedBox(height: T.s3),
                       TextField(
                         controller: _nameController,
                         textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                          labelText: '给它起个名字',
-                          helperText: '跳过则用默认名',
+                        decoration: InputDecoration(
+                          labelText: l.bindNameLabel,
+                          helperText: l.bindNameHelper,
                         ),
                       ),
                       const SizedBox(height: T.s3),
@@ -115,19 +127,19 @@ class _BindPageState extends State<BindPage> {
                             backgroundColor: T.accent,
                             foregroundColor: T.onAccent,
                           ),
-                          child: Text('完成绑定',
+                          child: Text(l.bindComplete,
                               style: T.title.copyWith(color: T.onAccent)),
                         ),
                       ),
                       const SizedBox(height: T.s1),
                       TextButton(
-                        onPressed: () => _complete(name: '我的专注卡'),
+                        onPressed: () =>
+                            _complete(name: l.bindDefaultName),
                         style: TextButton.styleFrom(
-                          minimumSize:
-                              const Size(T.minTouch, T.minTouch),
+                          minimumSize: const Size(T.minTouch, T.minTouch),
                           foregroundColor: T.inkSub,
                         ),
-                        child: const Text('跳过'),
+                        child: Text(l.skip),
                       ),
                     ],
                   ),
@@ -137,9 +149,9 @@ class _BindPageState extends State<BindPage> {
                       const Icon(Icons.check_circle,
                           size: 96, color: T.accent),
                       const SizedBox(height: T.s3),
-                      Text('绑定完成', style: T.display),
+                      Text(l.bindDone, style: T.display),
                       const SizedBox(height: T.s2),
-                      Text('这张卡现在是你的了',
+                      Text(l.bindDoneSub,
                           style: T.body.copyWith(color: T.inkSub)),
                     ],
                   ),

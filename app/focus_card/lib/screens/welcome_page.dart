@@ -1,5 +1,4 @@
-/// N1 · 首启欢迎（3 页可跳过）。
-/// 完成后写 prefs 标记，二启不再出现（验收：首启出现、二启不出现）。
+/// N1 · 首启欢迎（3 页可跳过，文案走 l10n）。
 library;
 
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/deps.dart';
 import '../app/theme.dart';
+import '../l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   final VoidCallback onDone;
@@ -19,24 +19,6 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   final _controller = PageController();
   int _index = 0;
-
-  static const _pages = [
-    (
-      icon: Icons.credit_card,
-      title: '这是你的状态卡',
-      desc: '贴在手机背面，无电池、不充电，\n画面一旦刷新就永久保持。',
-    ),
-    (
-      icon: Icons.screen_rotation_alt,
-      title: '翻转即写',
-      desc: '选一个状态，翻转手机贴住卡片，\n几秒后卡片就是你现在的状态。',
-    ),
-    (
-      icon: Icons.menu_book_outlined,
-      title: '自动成账本',
-      desc: '每次切换都会留下一条记录，\n专注多久，一目了然。',
-    ),
-  ];
 
   Future<void> _finish() async {
     final prefs = await SharedPreferences.getInstance();
@@ -52,6 +34,24 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final pages = [
+      (
+        icon: Icons.credit_card,
+        title: l.welcome1Title,
+        desc: l.welcome1Desc,
+      ),
+      (
+        icon: Icons.screen_rotation_alt,
+        title: l.welcome2Title,
+        desc: l.welcome2Desc,
+      ),
+      (
+        icon: Icons.menu_book_outlined,
+        title: l.welcome3Title,
+        desc: l.welcome3Desc,
+      ),
+    ];
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -61,7 +61,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 controller: _controller,
                 onPageChanged: (i) => setState(() => _index = i),
                 children: [
-                  for (final p in _pages)
+                  for (final p in pages)
                     Padding(
                       padding: const EdgeInsets.all(T.s4),
                       child: Column(
@@ -80,11 +80,10 @@ class _WelcomePageState extends State<WelcomePage> {
                 ],
               ),
             ),
-            // 页点（当前页 accent）
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var i = 0; i < _pages.length; i++)
+                for (var i = 0; i < pages.length; i++)
                   Container(
                     width: 8,
                     height: 8,
@@ -107,12 +106,12 @@ class _WelcomePageState extends State<WelcomePage> {
                       minimumSize: const Size(T.minTouch, T.minTouch),
                       foregroundColor: T.inkSub,
                     ),
-                    child: const Text('跳过'),
+                    child: Text(l.skip),
                   ),
                   const Spacer(),
                   FilledButton(
                     onPressed: () {
-                      if (_index < _pages.length - 1) {
+                      if (_index < pages.length - 1) {
                         _controller.nextPage(
                           duration: const Duration(milliseconds: 250),
                           curve: Curves.easeOut,
@@ -127,7 +126,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       foregroundColor: T.onAccent,
                     ),
                     child: Text(
-                      _index < _pages.length - 1 ? '下一页' : '开始',
+                      _index < pages.length - 1 ? l.next : l.start,
                       style: T.title.copyWith(color: T.onAccent),
                     ),
                   ),

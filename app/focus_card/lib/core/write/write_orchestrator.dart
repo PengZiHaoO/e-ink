@@ -41,32 +41,19 @@ class PreparedCard {
 
 enum WriteStage { render, compress, write, done, failed }
 
+/// 写入结果。用户文案不在这里——W4 文案走 l10n，
+/// 由 UI 层按 [error] 种类映射（write_screen.errorCopy）。
 class WriteOutcome {
   final bool ok;
   final WriteErrorKind? error;
-
-  /// 用户文案（W4）
-  final String message;
   final PreparedCard? prepared;
 
   const WriteOutcome({
     required this.ok,
     this.error,
-    required this.message,
     this.prepared,
   });
 }
-
-/// W4 文案初版（M3 真机实测后细化）
-String writeErrorCopy(WriteErrorKind kind) => switch (kind) {
-      WriteErrorKind.timeout => '没有读到卡片，请把手机贴紧卡片中央再试',
-      WriteErrorKind.capacity => '内容超出卡片容量，试试缩短留言',
-      WriteErrorKind.readOnly => '卡片已被写保护，无法更新',
-      WriteErrorKind.canceled => '已取消写入',
-      WriteErrorKind.nfcDisabled => '手机 NFC 未开启，请在系统设置中打开',
-      WriteErrorKind.tagLost => '写入中途卡片离开了，请保持贴合再试',
-      WriteErrorKind.unknown => '写入失败，请重试',
-    };
 
 class WriteOrchestrator {
   WriteOrchestrator({
@@ -139,7 +126,6 @@ class WriteOrchestrator {
       return WriteOutcome(
         ok: false,
         error: capacityError,
-        message: writeErrorCopy(capacityError),
         prepared: prepared,
       );
     }
@@ -156,14 +142,13 @@ class WriteOrchestrator {
           writeTs: ts,
         );
         onStage?.call(WriteStage.done);
-        return WriteOutcome(ok: true, message: '已更新', prepared: prepared);
+        return WriteOutcome(ok: true, prepared: prepared);
       case WriteFailure(:final kind):
         await machine.onWriteFailure(kind, ts: ts);
         onStage?.call(WriteStage.failed);
         return WriteOutcome(
           ok: false,
           error: kind,
-          message: writeErrorCopy(kind),
           prepared: prepared,
         );
     }

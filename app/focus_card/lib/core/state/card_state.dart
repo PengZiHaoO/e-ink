@@ -14,26 +14,45 @@ enum CardState {
       stateWord: 'FOCUSING',
       labelZh: '专注中',
       buttonLabelZh: '专注',
+      labelEn: 'Focusing',
+      buttonLabelEn: 'Focus',
       isFocus: true),
   onBreak(
       templateId: 'break',
       stateWord: 'BREAK',
       labelZh: '休息中',
-      buttonLabelZh: '休息'),
+      buttonLabelZh: '休息',
+      labelEn: 'On break',
+      buttonLabelEn: 'Break'),
   available(
       templateId: 'available',
       stateWord: 'AVAILABLE',
       labelZh: '可打扰',
-      buttonLabelZh: '可打扰'),
-  away(templateId: 'away', stateWord: 'AWAY', labelZh: '离开', buttonLabelZh: '离开'),
+      buttonLabelZh: '可打扰',
+      labelEn: 'Available',
+      buttonLabelEn: 'Available'),
+  away(
+      templateId: 'away',
+      stateWord: 'AWAY',
+      labelZh: '离开',
+      buttonLabelZh: '离开',
+      labelEn: 'Away',
+      buttonLabelEn: 'Away'),
   namecard(
-      templateId: 'card', stateWord: null, labelZh: '名片', buttonLabelZh: '名片');
+      templateId: 'card',
+      stateWord: null,
+      labelZh: '名片',
+      buttonLabelZh: '名片',
+      labelEn: 'Card',
+      buttonLabelEn: 'Card');
 
   const CardState({
     required this.templateId,
     required this.stateWord,
     required this.labelZh,
     required this.buttonLabelZh,
+    required this.labelEn,
+    required this.buttonLabelEn,
     this.isFocus = false,
   });
 
@@ -48,6 +67,13 @@ enum CardState {
 
   /// 按钮短标签（动作态：屏1 网格用，如"专注"——对齐线框图）
   final String buttonLabelZh;
+
+  /// T3.5 双语：英文标签（状态名不进 ARB——枚举驱动，随语言开关切换）
+  final String labelEn;
+  final String buttonLabelEn;
+
+  String label(bool zh) => zh ? labelZh : labelEn;
+  String buttonLabel(bool zh) => zh ? buttonLabelZh : buttonLabelEn;
 
   /// 统计英雄位标记（R3：专注时长视觉最大）
   final bool isFocus;

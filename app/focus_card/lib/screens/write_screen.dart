@@ -1,8 +1,7 @@
-/// 屏2「预览 + 写入」全屏流程页。
+/// 屏2「预览 + 写入」全屏流程页（文案走 l10n；W4 错误文案本地化）。
 ///
-/// 功能映射（全景 §5）：H2 大预览（WYSIWYG 同源——预览位图 = submit 发送的
-/// frameBytes 出自同一次 prepare）· W1-W5 流程态 · 翻转引导 · Mock 失败注入开关。
-/// C4 合规：无任何倒计时/秒针元素，时间只以快照文本出现。
+/// C1 同源：预览位图 = submit 发送字节（同一次 prepare 产物）。
+/// 专注 = 翻转即写入：进屏自动发起写入（留言默认折叠）。
 library;
 
 import 'dart:async';
@@ -16,6 +15,18 @@ import '../core/hal/card_writer.dart';
 import '../core/state/card_state.dart';
 import '../core/state/state_machine.dart';
 import '../core/write/write_orchestrator.dart';
+import '../l10n/app_localizations.dart';
+
+/// W4 · 错误文案本地化映射（kind → 当前语言文案）
+String errorCopy(WriteErrorKind kind, AppLocalizations l) => switch (kind) {
+      WriteErrorKind.timeout => l.errTimeout,
+      WriteErrorKind.capacity => l.errCapacity,
+      WriteErrorKind.readOnly => l.errReadOnly,
+      WriteErrorKind.canceled => l.errCanceled,
+      WriteErrorKind.nfcDisabled => l.errNfcDisabled,
+      WriteErrorKind.tagLost => l.errTagLost,
+      WriteErrorKind.unknown => l.errUnknown,
+    };
 
 class WriteScreen extends StatefulWidget {
   final AppDeps deps;
@@ -37,7 +48,7 @@ class _WriteScreenState extends State<WriteScreen> {
   bool _writing = false;
   WriteOutcome? _failure;
   bool _celebrating = false;
-  String? _validationError;
+  bool _validationError = false;
   bool _messageExpanded = false;
 
   /// 专注 = 翻转即写入：进屏2 自动开始写（留言默认隐藏）
@@ -64,7 +75,7 @@ class _WriteScreenState extends State<WriteScreen> {
       _preparing = true;
       _failure = null;
       _validationError =
-          widget.deps.orchestrator.validateCustomText(text);
+          widget.deps.orchestrator.validateCustomText(text) != null;
     });
     final prepared = await widget.deps.orchestrator.prepare(
       newState: widget.targetState,
@@ -118,11 +129,14 @@ class _WriteScreenState extends State<WriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isMock = widget.deps.isMock;
+    final l = AppLocalizations.of(context);
+    final zh = widget.deps.isZh;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.targetState == CardState.namecard ? '名片预览' : '写入卡片',
+          widget.targetState == CardState.namecard
+              ? l.writeTitleCard
+              : l.writeTitle,
           style: T.title,
         ),
         backgroundColor: T.paper,
@@ -130,31 +144,35 @@ class _WriteScreenState extends State<WriteScreen> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: _celebrating ? _buildSuccess() : _buildForm(isMock),
+        child: _celebrating
+            ? _buildSuccess(l, zh)
+            : _buildForm(l, widget.deps.isMock),
       ),
     );
   }
 
-  Widget _buildSuccess() {
+  Widget _buildSuccess(AppLocalizations l, bool zh) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.check_circle, size: 96, color: T.accent),
           const SizedBox(height: T.s3),
-          Text('已更新', style: T.display),
+          Text(l.updated, style: T.display),
           const SizedBox(height: T.s1),
-          Text('卡片现在显示「${widget.targetState.labelZh}」',
+          Text(l.updatedSub(widget.targetState.label(zh)),
               style: T.body.copyWith(color: T.inkSub)),
         ],
       ),
     );
   }
 
-  Widget _buildForm(bool isMock) {
+  Widget _buildForm(AppLocalizations l, bool isMock) {
     final prepared = _prepared;
-    final canSubmit = prepared != null && !_writing && !_preparing &&
-        _validationError == null;
+    final canSubmit = prepared != null &&
+        !_writing &&
+        !_preparing &&
+        !_validationError;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
@@ -162,13 +180,10 @@ class _WriteScreenState extends State<WriteScreen> {
           padding: const EdgeInsets.fromLTRB(T.s2, 0, T.s2, T.s2),
           child: Column(
             children: [
-              // 翻转引导（专注自动写入态文案不同）
               Text(
                 _autoSubmitMode && !_messageExpanded
-                    ? '翻转手机，贴住卡片，自动写入中'
-                    : (isMock
-                        ? '演示模式：点「写入卡片」模拟完整流程'
-                        : '翻转手机，贴住卡片'),
+                    ? l.guideAuto
+                    : (isMock ? l.guideMock : l.guideManual),
                 style: T.body.copyWith(color: T.inkSub),
               ),
               if (_autoSubmitMode &&
@@ -181,10 +196,9 @@ class _WriteScreenState extends State<WriteScreen> {
                     minimumSize: const Size(88, T.minTouch),
                     foregroundColor: T.inkSub,
                   ),
-                  child: const Text('先加留言？'),
+                  child: Text(l.addMessageFirst),
                 ),
               const SizedBox(height: T.s2),
-              // WYSIWYG 大预览
               Expanded(
                 child: Center(
                   child: _preparing && prepared == null
@@ -200,12 +214,11 @@ class _WriteScreenState extends State<WriteScreen> {
                 ),
               ),
               const SizedBox(height: T.s2),
-              // Mock 失败注入（N3 演示模式专属，真机不显示）
               if (isMock)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('模拟写入失败', style: T.caption),
+                    Text(l.mockFailToggle, style: T.caption),
                     const SizedBox(width: T.s1),
                     Switch(
                       value: _mockFailureOn,
@@ -218,7 +231,6 @@ class _WriteScreenState extends State<WriteScreen> {
                     ),
                   ],
                 ),
-              // 留言输入（S2）：专注自动写入态默认折叠
               if (!_autoSubmitMode || _messageExpanded)
                 TextField(
                   controller: _textController,
@@ -226,16 +238,17 @@ class _WriteScreenState extends State<WriteScreen> {
                   maxLength: StateMachine.maxCustomTextChars,
                   onChanged: _onTextChanged,
                   decoration: InputDecoration(
-                    labelText: '留言（可选）',
-                    helperText: '例如：15:30 后可打扰',
-                    errorText: _validationError,
+                    labelText: l.messageLabel,
+                    helperText: l.messageHelper,
+                    errorText: _validationError
+                        ? l.messageTooLong(StateMachine.maxCustomTextChars)
+                        : null,
                     counterText:
                         '${_textController.text.trim().length}/${StateMachine.maxCustomTextChars}',
                   ),
                 ),
               if (!_autoSubmitMode || _messageExpanded)
                 const SizedBox(height: T.s2),
-              // 失败面板（W4 文案 + 重试）
               if (_failure != null) ...[
                 Container(
                   width: double.infinity,
@@ -246,10 +259,13 @@ class _WriteScreenState extends State<WriteScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: T.accent, size: 24),
+                      const Icon(Icons.error_outline,
+                          color: T.accent, size: 24),
                       const SizedBox(width: T.s1),
                       Expanded(
-                        child: Text(_failure!.message, style: T.body),
+                        child: Text(
+                            errorCopy(_failure!.error!, l),
+                            style: T.body),
                       ),
                     ],
                   ),
@@ -267,12 +283,11 @@ class _WriteScreenState extends State<WriteScreen> {
                         borderRadius: BorderRadius.circular(T.rButton),
                       ),
                     ),
-                    child: const Text('重试'),
+                    child: Text(l.retry),
                   ),
                 ),
                 const SizedBox(height: T.s1),
               ],
-              // 主行动（A6：全屏唯一实心主按钮；拇指热区）
               SizedBox(
                 width: double.infinity,
                 height: T.primaryHeight,
@@ -297,11 +312,11 @@ class _WriteScreenState extends State<WriteScreen> {
                                   color: T.onAccent, strokeWidth: 2),
                             ),
                             const SizedBox(width: T.s1),
-                            Text('写入中…',
+                            Text(l.writing,
                                 style: T.title.copyWith(color: T.onAccent)),
                           ],
                         )
-                      : Text('写入卡片',
+                      : Text(l.writeButton,
                           style: T.title.copyWith(color: T.onAccent)),
                 ),
               ),
