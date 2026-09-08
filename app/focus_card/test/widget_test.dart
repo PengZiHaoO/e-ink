@@ -76,7 +76,7 @@ void main() {
 
     // ---- 段2：进屏2 + prepare 渲染 ----
     await tester.runAsync(() async {
-      await tester.tap(find.text('专注'));
+      await tester.tap(find.text('可打扰')); // 手动流程用非专注态（专注=自动写入）
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await Future<void>.delayed(const Duration(milliseconds: 600));
@@ -110,9 +110,43 @@ void main() {
       await tester.pump();
       await tester.pump();
     });
-    expect(deps.machine.state.currentState, CardState.focusing);
-    expect(find.text('专注中'), findsWidgets);
+    expect(deps.machine.state.currentState, CardState.available);
+    expect(find.text('可打扰'), findsWidgets);
     expect(deps.sessionLog.count, 0, reason: '首次写入不产会话（防通胀）');
+  });
+
+  testWidgets('专注翻转即写入：进屏2 自动写入，无需点按钮', (tester) async {
+    _phoneViewport(tester);
+    _seedPrefs(uid: 'MOCK-FAST');
+    final deps = _testDeps();
+    await deps.machine.load();
+
+    await tester.runAsync(() async {
+      await tester.pumpWidget(FocusCardApp(deps: deps));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+      await tester.pump();
+
+      // 英雄位整行按钮
+      await tester.tap(find.text('专注'));
+      await tester.pump();
+      // 自动写入：prepare 完成即 submit（Mock 零延迟）→ 庆祝
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      await tester.pump();
+      await tester.pump();
+      expect(deps.machine.state.currentState, CardState.focusing,
+          reason: '未点写入按钮也应完成写入');
+
+      // 庆祝真实 Timer 清理 → pop 回屏1
+      await Future<void>.delayed(const Duration(milliseconds: 1200));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+      await tester.pump();
+    });
+    expect(find.text('专注中'), findsWidgets);
   });
 
   testWidgets('失败路径：模拟失败开关 → W4 文案 + 状态不动 → 重试成功',
@@ -131,7 +165,7 @@ void main() {
     });
 
     await tester.runAsync(() async {
-      await tester.tap(find.text('专注'));
+      await tester.tap(find.text('可打扰'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await Future<void>.delayed(const Duration(milliseconds: 600));
@@ -164,7 +198,7 @@ void main() {
       await tester.pump();
     });
     expect(find.text('已更新'), findsOneWidget);
-    expect(deps.machine.state.currentState, CardState.focusing);
+    expect(deps.machine.state.currentState, CardState.available);
 
     // 庆祝真实 Timer 清理：在测试域内等完 pop，避免跨测试噪音
     await tester.runAsync(() async {

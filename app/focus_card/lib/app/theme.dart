@@ -9,8 +9,7 @@ abstract final class T {
   static const ink = Color(0xFF1A1A1A);
   static const inkSub = Color(0xFF6B6B66); // 4.9:1 ✓ 正文可用
   static const line = Color(0xFF8A8A85); // 3.3:1 仅边框/装饰，禁止文字
-  static const accent = Color(0xFFE8590C); // 唯一彩色（图形/按钮底）
-  static const accentText = Color(0xFFC74A08); // 强调色文字深变体（纸白上 4.6:1，A4 合规）
+  static const accent = Color(0xFFE8590C); // 唯一彩色 = 行动色（写入按钮/演示标记/CTA）；状态强调用墨黑
   static const onAccent = Color(0xFFFFFFFF);
 
   // ---- §2.2 字级（4 级、2 字重 w400/w700）----

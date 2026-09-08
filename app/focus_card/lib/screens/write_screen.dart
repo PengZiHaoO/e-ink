@@ -38,6 +38,10 @@ class _WriteScreenState extends State<WriteScreen> {
   WriteOutcome? _failure;
   bool _celebrating = false;
   String? _validationError;
+  bool _messageExpanded = false;
+
+  /// 专注 = 翻转即写入：进屏2 自动开始写（留言默认隐藏）
+  bool get _autoSubmitMode => widget.targetState == CardState.focusing;
 
   @override
   void initState() {
@@ -74,6 +78,12 @@ class _WriteScreenState extends State<WriteScreen> {
       _prepared = prepared;
       _preparing = false;
     });
+    // 翻转即写入：渲染就绪即发起写入（真机上 NFC 会话等待标签，翻转完成它）
+    if (_autoSubmitMode &&
+        !_messageExpanded &&
+        _textController.text.trim().isEmpty) {
+      _submit();
+    }
   }
 
   void _onTextChanged(String _) {
@@ -152,11 +162,27 @@ class _WriteScreenState extends State<WriteScreen> {
           padding: const EdgeInsets.fromLTRB(T.s2, 0, T.s2, T.s2),
           child: Column(
             children: [
-              // 翻转引导
+              // 翻转引导（专注自动写入态文案不同）
               Text(
-                isMock ? '演示模式：点「写入卡片」模拟完整流程' : '翻转手机，贴住卡片',
+                _autoSubmitMode && !_messageExpanded
+                    ? '翻转手机，贴住卡片，自动写入中'
+                    : (isMock
+                        ? '演示模式：点「写入卡片」模拟完整流程'
+                        : '翻转手机，贴住卡片'),
                 style: T.body.copyWith(color: T.inkSub),
               ),
+              if (_autoSubmitMode &&
+                  !_messageExpanded &&
+                  !_writing &&
+                  !_celebrating)
+                TextButton(
+                  onPressed: () => setState(() => _messageExpanded = true),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(88, T.minTouch),
+                    foregroundColor: T.inkSub,
+                  ),
+                  child: const Text('先加留言？'),
+                ),
               const SizedBox(height: T.s2),
               // WYSIWYG 大预览
               Expanded(
@@ -192,21 +218,23 @@ class _WriteScreenState extends State<WriteScreen> {
                     ),
                   ],
                 ),
-              // 留言输入（S2）
-              TextField(
-                controller: _textController,
-                enabled: !_writing,
-                maxLength: StateMachine.maxCustomTextChars,
-                onChanged: _onTextChanged,
-                decoration: InputDecoration(
-                  labelText: '留言（可选）',
-                  helperText: '例如：15:30 后可打扰',
-                  errorText: _validationError,
-                  counterText:
-                      '${_textController.text.trim().length}/${StateMachine.maxCustomTextChars}',
+              // 留言输入（S2）：专注自动写入态默认折叠
+              if (!_autoSubmitMode || _messageExpanded)
+                TextField(
+                  controller: _textController,
+                  enabled: !_writing,
+                  maxLength: StateMachine.maxCustomTextChars,
+                  onChanged: _onTextChanged,
+                  decoration: InputDecoration(
+                    labelText: '留言（可选）',
+                    helperText: '例如：15:30 后可打扰',
+                    errorText: _validationError,
+                    counterText:
+                        '${_textController.text.trim().length}/${StateMachine.maxCustomTextChars}',
+                  ),
                 ),
-              ),
-              const SizedBox(height: T.s2),
+              if (!_autoSubmitMode || _messageExpanded)
+                const SizedBox(height: T.s2),
               // 失败面板（W4 文案 + 重试）
               if (_failure != null) ...[
                 Container(

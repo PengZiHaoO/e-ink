@@ -58,7 +58,7 @@ class RecordsScreen extends StatelessWidget {
                                 height: 8,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: r.state.isFocus ? T.accent : T.inkSub,
+                                  color: r.state.isFocus ? T.ink : T.inkSub,
                                 ),
                               ),
                               const SizedBox(width: T.s1),

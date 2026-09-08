@@ -11,12 +11,12 @@ import '../core/hal/card_bitmap.dart';
 import '../core/state/card_state.dart';
 import 'write_screen.dart';
 
-/// 网格中的四个状态（名片单独整行，语义不同：身份 vs 状态）
+/// 2×2 网格中的四个次级状态（专注=英雄位单独整行，产品主打）
 const _gridStates = [
-  CardState.focusing,
   CardState.onBreak,
   CardState.available,
   CardState.away,
+  CardState.namecard,
 ];
 
 IconData stateIcon(CardState s) => switch (s) {
@@ -58,6 +58,19 @@ class StatusScreen extends StatelessWidget {
                     const SizedBox(height: T.s3),
                     Text('切换状态', style: T.body.copyWith(color: T.inkSub)),
                     const SizedBox(height: T.s2),
+                    // 专注 = 英雄位：整行 + 翻转即写入提示（B 轮评审：专注最重要）
+                    SizedBox(
+                      width: double.infinity,
+                      height: 72,
+                      child: _StateCell(
+                        state: CardState.focusing,
+                        isCurrent: _isCurrent(CardState.focusing),
+                        hint: '翻转即写入',
+                        horizontal: true,
+                        onTap: () => _openWrite(context, CardState.focusing),
+                      ),
+                    ),
+                    const SizedBox(height: T.s2),
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
@@ -69,24 +82,10 @@ class StatusScreen extends StatelessWidget {
                         for (final s in _gridStates)
                           _StateCell(
                             state: s,
-                            isCurrent: deps.machine.state.isCardSynced &&
-                                deps.machine.state.currentState == s,
+                            isCurrent: _isCurrent(s),
                             onTap: () => _openWrite(context, s),
                           ),
                       ],
-                    ),
-                    const SizedBox(height: T.s2),
-                    SizedBox(
-                      width: double.infinity,
-                      height: T.primaryHeight,
-                      child: _StateCell(
-                        state: CardState.namecard,
-                        isCurrent: deps.machine.state.isCardSynced &&
-                            deps.machine.state.currentState ==
-                                CardState.namecard,
-                        horizontal: true,
-                        onTap: () => _openWrite(context, CardState.namecard),
-                      ),
                     ),
                   ],
                 ),
@@ -103,6 +102,10 @@ class StatusScreen extends StatelessWidget {
       builder: (_) => WriteScreen(deps: deps, targetState: s),
     ));
   }
+
+  /// 「卡上」= 曾成功写入且当前状态（未写卡时任何格不高亮）
+  bool _isCurrent(CardState s) =>
+      deps.machine.state.isCardSynced && deps.machine.state.currentState == s;
 }
 
 /// 「现在」卡：当前已提交状态的迷你预览（S4）+ 上卡时间。
@@ -222,11 +225,16 @@ class _NowCardState extends State<_NowCard> {
   }
 }
 
-/// 状态按钮格（主行动在屏2，这里全部是同级次选择 → A6 合规）
+/// 状态按钮格（主行动在屏2，这里全部是选择格 → A6 合规）。
+/// 视觉语义（B 轮评审定稿）：**状态强调 = 墨黑 monochrome**（当前态 2px 墨边）；
+/// 橙色只属于"行动"（写入按钮/演示标记），不用于状态。
 class _StateCell extends StatelessWidget {
   final CardState state;
   final bool isCurrent;
   final bool horizontal;
+
+  /// 英雄位提示语（专注：翻转即写入）
+  final String? hint;
   final VoidCallback onTap;
 
   const _StateCell({
@@ -234,11 +242,13 @@ class _StateCell extends StatelessWidget {
     required this.isCurrent,
     required this.onTap,
     this.horizontal = false,
+    this.hint,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fg = isCurrent ? T.accentText : T.ink;
+    final fg = T.ink;
+    final caption = isCurrent ? '卡上' : hint;
     return Material(
       color: T.paper,
       borderRadius: BorderRadius.circular(T.rButton),
@@ -248,7 +258,7 @@ class _StateCell extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(T.rButton),
-            border: Border.all(color: isCurrent ? T.accent : T.line, width: isCurrent ? 2 : 1),
+            border: Border.all(color: isCurrent ? T.ink : T.line, width: isCurrent ? 2 : 1),
           ),
           padding: const EdgeInsets.all(T.s1),
           child: horizontal
@@ -260,10 +270,9 @@ class _StateCell extends StatelessWidget {
                     Text(state.buttonLabelZh,
                         style: T.body.copyWith(
                             fontWeight: FontWeight.w700, color: fg)),
-                    if (isCurrent) ...[
+                    if (caption != null) ...[
                       const SizedBox(width: T.s1),
-                      Text('· 卡上',
-                          style: T.caption.copyWith(color: T.accentText)),
+                      Text('· $caption', style: T.caption),
                     ],
                   ],
                 )
@@ -275,9 +284,7 @@ class _StateCell extends StatelessWidget {
                     Text(state.buttonLabelZh,
                         style: T.body.copyWith(
                             fontWeight: FontWeight.w700, color: fg)),
-                    if (isCurrent)
-                      Text('卡上',
-                          style: T.caption.copyWith(color: T.accentText)),
+                    if (caption != null) Text(caption, style: T.caption),
                   ],
                 ),
         ),
