@@ -482,6 +482,42 @@ abstract class AppLocalizations {
   /// **'仍在继续'**
   String get stillGoing;
 
+  /// No description provided for @profileSheetTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'名片档案'**
+  String get profileSheetTitle;
+
+  /// No description provided for @nameField.
+  ///
+  /// In zh, this message translates to:
+  /// **'姓名'**
+  String get nameField;
+
+  /// No description provided for @titleField.
+  ///
+  /// In zh, this message translates to:
+  /// **'头衔'**
+  String get titleField;
+
+  /// No description provided for @qrField.
+  ///
+  /// In zh, this message translates to:
+  /// **'二维码内容'**
+  String get qrField;
+
+  /// No description provided for @qrHelper.
+  ///
+  /// In zh, this message translates to:
+  /// **'URL 或文本，渲染为卡上二维码'**
+  String get qrHelper;
+
+  /// No description provided for @save.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get save;
+
   /// No description provided for @errTimeout.
   ///
   /// In zh, this message translates to:

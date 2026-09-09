@@ -278,6 +278,39 @@ void main() {
         isTrue);
   });
 
+  testWidgets('P2/P3 名片首用：档案 sheet → 保存 → 进写屏（档案生效）',
+      (tester) async {
+    _phoneViewport(tester);
+    _seedPrefs(uid: 'MOCK-P');
+    final deps = _testDeps();
+    await deps.machine.load();
+
+    await tester.runAsync(() async {
+      await tester.pumpWidget(FocusCardApp(deps: deps));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+      await tester.pump();
+    });
+
+    // 档案为空 → 点名片先弹 sheet
+    await tester.tap(find.text('名片'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('名片档案'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).at(0), 'ALEX CHEN');
+    await tester.enterText(find.byType(TextField).at(1), 'PRODUCT DESIGN');
+    await tester.enterText(find.byType(TextField).at(2), 'https://focus.card/alex');
+    await tester.tap(find.text('保存'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // sheet 关闭 → 自动进写屏（名片预览）
+    expect(find.text('名片预览'), findsOneWidget);
+    expect(deps.userProfile.name, 'ALEX CHEN');
+  });
+
   testWidgets('T3.5 语言热切换：zh→en 标签即时变英文', (tester) async {
     _phoneViewport(tester);
     _seedPrefs(uid: 'MOCK-EN');

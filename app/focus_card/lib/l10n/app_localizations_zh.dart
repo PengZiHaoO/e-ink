@@ -214,6 +214,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get stillGoing => '仍在继续';
 
   @override
+  String get profileSheetTitle => '名片档案';
+
+  @override
+  String get nameField => '姓名';
+
+  @override
+  String get titleField => '头衔';
+
+  @override
+  String get qrField => '二维码内容';
+
+  @override
+  String get qrHelper => 'URL 或文本，渲染为卡上二维码';
+
+  @override
+  String get save => '保存';
+
+  @override
   String get errTimeout => '没有读到卡片，请把手机贴紧卡片中央再试';
 
   @override

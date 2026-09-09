@@ -7,6 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/hal/card_renderer.dart';
 import '../core/hal/card_writer.dart';
 import '../core/hal/device_profile.dart';
+import '../core/hal/qr_bitmap.dart';
+import '../core/profile/user_profile.dart';
+import '../core/state/card_state.dart';
 import '../core/state/session_log.dart';
 import '../core/state/session_repository.dart';
 import '../core/state/state_machine.dart';
@@ -51,6 +54,9 @@ class AppDeps {
   final StateMachine machine;
   final SessionLog sessionLog;
   final SessionRepository sessionRepository;
+
+  /// P1 · 名片档案（可重载：sheet 保存后立即生效）
+  UserProfile userProfile;
   final WriteOrchestrator orchestrator;
   final LocaleController localeController;
 
@@ -66,11 +72,13 @@ class AppDeps {
     required this.machine,
     required this.sessionLog,
     SessionRepository? sessionRepository,
+    UserProfile? userProfile,
     LocaleController? localeController,
     int deviceId = 0x00000001,
     DateTime Function()? clock,
   })  : renderer = CardRenderer(profile),
         sessionRepository = sessionRepository ?? MemorySessionRepository(),
+        userProfile = userProfile ?? const UserProfile(),
         localeController = localeController ?? LocaleController(),
         isMock = writer is MockCardWriter,
         orchestrator = WriteOrchestrator(
@@ -82,8 +90,29 @@ class AppDeps {
           clock: clock,
         );
 
+  Future<void> reloadUserProfile() async {
+    userProfile = await UserProfileStore.load();
+  }
+
+  /// S5→H2 单源桥接（「现在」卡用）：状态 + 档案(+QR) → 渲染输入
+  CardRenderInput buildInputFor(
+    CardState state, {
+    DateTime? since,
+    String? customText,
+  }) {
+    if (state == CardState.namecard) {
+      return CardRenderInput(
+        templateId: state.templateId,
+        name: userProfile.isComplete ? userProfile.name : null,
+        title: userProfile.title.isEmpty ? null : userProfile.title,
+        qrBitmap: renderQrBitmap(userProfile.qrContent, scale: 3),
+      );
+    }
+    return state.buildRenderInput(since: since, customText: customText);
+  }
+
   /// 生产装配：Gen1 占位 profile + 平台 writer + Prefs 持久化
-  /// + 语言偏好 + **sqflite 会话账本（启动恢复 + 打点静默落库）**
+  /// + 语言偏好 + 名片档案 + **sqflite 会话账本（启动恢复 + 打点静默落库）**
   static Future<AppDeps> create() async {
     final profile = DeviceProfile.gen1Placeholder;
     final machine = StateMachine(store: PrefsAppStateStore());
@@ -107,6 +136,7 @@ class AppDeps {
       machine: machine,
       sessionLog: log,
       sessionRepository: repo,
+      userProfile: await UserProfileStore.load(),
       localeController: localeController,
     );
   }

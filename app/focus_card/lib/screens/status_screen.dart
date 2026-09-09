@@ -10,6 +10,7 @@ import '../app/theme.dart';
 import '../core/hal/card_bitmap.dart';
 import '../core/state/card_state.dart';
 import '../l10n/app_localizations.dart';
+import 'profile_sheet.dart';
 import 'write_screen.dart';
 
 /// 2×2 网格中的四个次级状态（专注=英雄位单独整行，产品主打）
@@ -101,7 +102,9 @@ class StatusScreen extends StatelessWidget {
                             isCurrent: _isCurrent(s),
                             zh: deps.isZh,
                             hint: _captionFor(l, s),
-                            onTap: () => _openWrite(context, s),
+                            onTap: s == CardState.namecard
+                                ? () => _openNamecard(context)
+                                : () => _openWrite(context, s),
                           ),
                       ],
                     ),
@@ -119,6 +122,19 @@ class StatusScreen extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => WriteScreen(deps: deps, targetState: s),
     ));
+  }
+
+  /// 名片流程（P2）：档案不全 → 先 bottom sheet 补档案，再进写屏
+  Future<void> _openNamecard(BuildContext context) async {
+    if (!deps.userProfile.isComplete) {
+      final saved = await showModalBottomSheet<bool>(
+        context: context,
+        builder: (_) => ProfileSheet(initial: deps.userProfile),
+      );
+      await deps.reloadUserProfile();
+      if (saved != true || !context.mounted) return;
+    }
+    if (context.mounted) _openWrite(context, CardState.namecard);
   }
 }
 
@@ -164,11 +180,10 @@ class _NowCardState extends State<_NowCard> {
     final key = _key;
     if (key == _renderedKey) return;
     // T7 前名片档案用占位（P1 落地后从 UserProfile 读）
-    final input = s.currentState.buildRenderInput(
+    final input = widget.deps.buildInputFor(
+      s.currentState,
       since: s.since,
       customText: s.customText,
-      name: 'YOUR NAME',
-      title: '',
     );
     final bmp = await widget.deps.renderer.render(input);
     if (!mounted || key != _key) return;
@@ -343,8 +358,14 @@ class _OverflowMenu extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: T.ink),
-      onSelected: (v) {
-        if (v == 'about') {
+      onSelected: (v) async {
+        if (v == 'profile') {
+          await showModalBottomSheet<bool>(
+            context: context,
+            builder: (_) => ProfileSheet(initial: deps.userProfile),
+          );
+          await deps.reloadUserProfile();
+        } else if (v == 'about') {
           showAboutDialog(
             context: context,
             applicationName: 'focus_card',
@@ -367,12 +388,7 @@ class _OverflowMenu extends StatelessWidget {
               '${l.menuLanguage}: ${deps.isZh ? "中文" : "English"} ⇄'),
         ),
         PopupMenuItem(value: 'about', child: Text(l.menuAbout)),
-        PopupMenuItem(
-          value: 'profile',
-          enabled: false,
-          child: Text(l.menuProfile,
-              style: T.body.copyWith(color: T.inkSub)),
-        ),
+        PopupMenuItem(value: 'profile', child: Text(l.menuProfile)),
         PopupMenuItem(
           value: 'unbind',
           enabled: false,

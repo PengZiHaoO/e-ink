@@ -222,6 +222,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stillGoing => 'Still going';
 
   @override
+  String get profileSheetTitle => 'Card profile';
+
+  @override
+  String get nameField => 'Name';
+
+  @override
+  String get titleField => 'Title';
+
+  @override
+  String get qrField => 'QR content';
+
+  @override
+  String get qrHelper => 'URL or text — rendered as QR on the card';
+
+  @override
+  String get save => 'Save';
+
+  @override
   String get errTimeout =>
       'Can\'t read the card — press the phone firmly on the card center and retry';
 

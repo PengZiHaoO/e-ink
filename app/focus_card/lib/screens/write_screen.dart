@@ -14,6 +14,7 @@ import '../app/theme.dart';
 import '../core/hal/card_writer.dart';
 import '../core/state/card_state.dart';
 import '../core/state/state_machine.dart';
+import '../core/hal/qr_bitmap.dart';
 import '../core/write/write_orchestrator.dart';
 import '../l10n/app_localizations.dart';
 
@@ -77,12 +78,13 @@ class _WriteScreenState extends State<WriteScreen> {
       _validationError =
           widget.deps.orchestrator.validateCustomText(text) != null;
     });
+    final up = widget.deps.userProfile;
     final prepared = await widget.deps.orchestrator.prepare(
       newState: widget.targetState,
       customText: text,
-      // T7（P 域）落地后从 UserProfile 读取；M1 占位
-      name: 'YOUR NAME',
-      title: '',
+      name: up.isComplete ? up.name : null,
+      title: up.title.isEmpty ? null : up.title,
+      qrBitmap: renderQrBitmap(up.qrContent, scale: 3),
     );
     if (!mounted) return;
     setState(() {

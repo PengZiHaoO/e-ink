@@ -87,6 +87,7 @@ class WriteOrchestrator {
     String? customText,
     String? name,
     String? title,
+    CardBitmap? qrBitmap,
   }) async {
     onStage?.call(WriteStage.render);
     final input = newState.buildRenderInput(
@@ -94,6 +95,7 @@ class WriteOrchestrator {
       customText: customText,
       name: name,
       title: title,
+      qrBitmap: qrBitmap,
     );
     final bitmap = await renderer.render(input);
 
