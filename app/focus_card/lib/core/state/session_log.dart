@@ -16,6 +16,14 @@ class SessionLog extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 启动时从 repository 批量恢复（单次通知）
+  void addAll(Iterable<SessionRecord> past) {
+    final list = past.toList();
+    if (list.isEmpty) return;
+    records.addAll(list);
+    notifyListeners();
+  }
+
   int get count => records.length;
 
   /// 今日会话（本地日界，R3 的过渡版）

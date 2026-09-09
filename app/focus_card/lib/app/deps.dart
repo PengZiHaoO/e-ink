@@ -8,6 +8,7 @@ import '../core/hal/card_renderer.dart';
 import '../core/hal/card_writer.dart';
 import '../core/hal/device_profile.dart';
 import '../core/state/session_log.dart';
+import '../core/state/session_repository.dart';
 import '../core/state/state_machine.dart';
 import '../core/state/state_store.dart';
 import '../core/write/write_orchestrator.dart';
@@ -49,6 +50,7 @@ class AppDeps {
   final CardWriter writer;
   final StateMachine machine;
   final SessionLog sessionLog;
+  final SessionRepository sessionRepository;
   final WriteOrchestrator orchestrator;
   final LocaleController localeController;
 
@@ -63,10 +65,12 @@ class AppDeps {
     required this.writer,
     required this.machine,
     required this.sessionLog,
+    SessionRepository? sessionRepository,
     LocaleController? localeController,
     int deviceId = 0x00000001,
     DateTime Function()? clock,
   })  : renderer = CardRenderer(profile),
+        sessionRepository = sessionRepository ?? MemorySessionRepository(),
         localeController = localeController ?? LocaleController(),
         isMock = writer is MockCardWriter,
         orchestrator = WriteOrchestrator(
@@ -78,13 +82,23 @@ class AppDeps {
           clock: clock,
         );
 
-  /// 生产装配：Gen1 占位 profile + 平台 writer + Prefs 持久化 + 语言偏好
+  /// 生产装配：Gen1 占位 profile + 平台 writer + Prefs 持久化
+  /// + 语言偏好 + **sqflite 会话账本（启动恢复 + 打点静默落库）**
   static Future<AppDeps> create() async {
     final profile = DeviceProfile.gen1Placeholder;
     final machine = StateMachine(store: PrefsAppStateStore());
     await machine.load();
+
     final log = SessionLog();
-    machine.sessionSink = log.add; // T4：换成 sqflite repository
+    final repo = await SqfliteSessionRepository.open();
+    log.addAll(await repo.all()); // 重启恢复账本
+
+    // S3 打点 → UI 即时 + 静默落库（IO 失败不炸 App）
+    machine.sessionSink = (record) {
+      log.add(record);
+      repo.insert(record).catchError(logPersistError);
+    };
+
     final localeController = LocaleController();
     await localeController.load();
     return AppDeps(
@@ -92,6 +106,7 @@ class AppDeps {
       writer: createPlatformCardWriter(),
       machine: machine,
       sessionLog: log,
+      sessionRepository: repo,
       localeController: localeController,
     );
   }
