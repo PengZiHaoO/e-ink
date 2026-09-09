@@ -9,6 +9,11 @@ library;
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
+
+import '../write/nfc_card_writer.dart';
+
 /// 写入错误七分类（W3 真机实现将 nfc_manager 异常映射至此；用户文案见 W4）
 enum WriteErrorKind {
   timeout, // 会话超时/耦合差
@@ -79,9 +84,13 @@ class MockCardWriter implements CardWriter {
   Future<void> dispose() async {}
 }
 
-/// 平台工厂。
-/// M1/M2 阶段一律 Mock（桌面主战场）；M3/T6 时 Android 分支替换为 NfcCardWriter。
+/// 平台工厂：移动真机 = NfcCardWriter；桌面/测试 = Mock。
 CardWriter createPlatformCardWriter() {
-  // TODO(M3/T6): defaultTargetPlatform == android → NfcCardWriter(nfc_manager)
-  return MockCardWriter();
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.android:
+    case TargetPlatform.iOS:
+      return NfcCardWriter();
+    default:
+      return MockCardWriter();
+  }
 }
