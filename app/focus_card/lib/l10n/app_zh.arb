@@ -68,6 +68,23 @@
   "recordsBuilding": "统计页建设中（M2）—— 会话已在静默记录",
   "recordedSessions": "已记录会话",
   "recordsEmpty": "切换一次状态，这里就会出现第一条会话",
+  "focusToday": "今日专注",
+  "streakDays": "连续 {n} 天",
+  "@streakDays": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "sessionsHeader": "会话",
+  "todayEmpty": "今天还没有会话",
+  "openSessionTitle": "还在专注吗？",
+  "openSessionBody": "卡片从 {time} 起一直显示「{state}」。",
+  "@openSessionBody": {
+    "placeholders": {
+      "state": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "endNow": "现在结束",
+  "stillGoing": "仍在继续",
   "errTimeout": "没有读到卡片，请把手机贴紧卡片中央再试",
   "errCapacity": "内容超出卡片容量，试试缩短留言",
   "errReadOnly": "卡片已被写保护，无法更新",

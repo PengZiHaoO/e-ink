@@ -68,6 +68,23 @@
   "recordsBuilding": "Stats page under construction (M2) — sessions are being logged silently",
   "recordedSessions": "recorded sessions",
   "recordsEmpty": "Switch a state once and your first session appears here",
+  "focusToday": "Focus today",
+  "streakDays": "{n}-day streak",
+  "@streakDays": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "sessionsHeader": "Sessions",
+  "todayEmpty": "No sessions yet today",
+  "openSessionTitle": "Still focusing?",
+  "openSessionBody": "Card has shown \"{state}\" since {time}.",
+  "@openSessionBody": {
+    "placeholders": {
+      "state": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "endNow": "End it now",
+  "stillGoing": "Still going",
   "errTimeout": "Can't read the card — press the phone firmly on the card center and retry",
   "errCapacity": "Content exceeds card capacity — try a shorter message",
   "errReadOnly": "Card is write-protected",

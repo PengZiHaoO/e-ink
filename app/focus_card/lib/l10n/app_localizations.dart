@@ -434,6 +434,54 @@ abstract class AppLocalizations {
   /// **'切换一次状态，这里就会出现第一条会话'**
   String get recordsEmpty;
 
+  /// No description provided for @focusToday.
+  ///
+  /// In zh, this message translates to:
+  /// **'今日专注'**
+  String get focusToday;
+
+  /// No description provided for @streakDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'连续 {n} 天'**
+  String streakDays(int n);
+
+  /// No description provided for @sessionsHeader.
+  ///
+  /// In zh, this message translates to:
+  /// **'会话'**
+  String get sessionsHeader;
+
+  /// No description provided for @todayEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天还没有会话'**
+  String get todayEmpty;
+
+  /// No description provided for @openSessionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'还在专注吗？'**
+  String get openSessionTitle;
+
+  /// No description provided for @openSessionBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'卡片从 {time} 起一直显示「{state}」。'**
+  String openSessionBody(String state, String time);
+
+  /// No description provided for @endNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'现在结束'**
+  String get endNow;
+
+  /// No description provided for @stillGoing.
+  ///
+  /// In zh, this message translates to:
+  /// **'仍在继续'**
+  String get stillGoing;
+
   /// No description provided for @errTimeout.
   ///
   /// In zh, this message translates to:

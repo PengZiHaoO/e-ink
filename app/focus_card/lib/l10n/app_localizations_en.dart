@@ -194,6 +194,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Switch a state once and your first session appears here';
 
   @override
+  String get focusToday => 'Focus today';
+
+  @override
+  String streakDays(int n) {
+    return '$n-day streak';
+  }
+
+  @override
+  String get sessionsHeader => 'Sessions';
+
+  @override
+  String get todayEmpty => 'No sessions yet today';
+
+  @override
+  String get openSessionTitle => 'Still focusing?';
+
+  @override
+  String openSessionBody(String state, String time) {
+    return 'Card has shown \"$state\" since $time.';
+  }
+
+  @override
+  String get endNow => 'End it now';
+
+  @override
+  String get stillGoing => 'Still going';
+
+  @override
   String get errTimeout =>
       'Can\'t read the card — press the phone firmly on the card center and retry';
 

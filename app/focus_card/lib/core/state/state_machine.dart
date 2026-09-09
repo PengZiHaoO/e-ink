@@ -102,6 +102,22 @@ class StateMachine extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// R5 补记：手动关闭当前开放会话（不写卡）；区间自 [end] 重开，
+  /// 避免下次写入时重复计入同一段时间。
+  Future<void> closeOpenSession(DateTime end) async {
+    final old = _state;
+    if (!old.isCardSynced) return;
+    sessionSink?.call(SessionRecord(
+      state: old.currentState,
+      start: old.since,
+      end: end,
+      note: old.customText,
+    ));
+    _state = old.copyWith(since: end);
+    await store.write(_state);
+    notifyListeners();
+  }
+
   /// 写入失败：只记尝试，不改状态、不打点、不关会话。
   /// 卡上仍显示旧状态——`isCardSynced` 依据 lastSuccessTs，不受失败影响。
   Future<void> onWriteFailure(WriteErrorKind kind, {DateTime? ts}) async {

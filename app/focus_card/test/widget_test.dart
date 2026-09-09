@@ -16,6 +16,7 @@ import 'package:focus_card/core/hal/card_writer.dart';
 import 'package:focus_card/core/hal/device_profile.dart';
 import 'package:focus_card/core/state/card_state.dart';
 import 'package:focus_card/core/state/session_log.dart';
+import 'package:focus_card/core/state/session_stats.dart';
 import 'package:focus_card/core/state/state_machine.dart';
 import 'package:focus_card/core/state/state_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -242,6 +243,39 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool(PrefsKeys.welcomeDone), isTrue);
     expect(CardBinding.decode(prefs.getString(PrefsKeys.binding)), isNotNull);
+  });
+
+  testWidgets('R5 补记提示：跨日开放专注 → 启动弹窗；现在结束 → 会话入账且区间重开',
+      (tester) async {
+    _phoneViewport(tester);
+    _seedPrefs(uid: 'MOCK-R5');
+    final deps = _testDeps();
+    await deps.machine.load();
+    final yesterday = DateTime.now().subtract(const Duration(days: 1, hours: 2));
+    await deps.machine.onWriteSuccess(
+        newState: CardState.focusing, writeTs: yesterday);
+
+    await tester.runAsync(() async {
+      await tester.pumpWidget(FocusCardApp(deps: deps));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+      await tester.pump();
+    });
+    expect(find.text('还在专注吗？'), findsOneWidget);
+
+    // 手势与 pop 动画也要在 runAsync 域内（runAsync/fake-async 混合陷阱）
+    await tester.runAsync(() async {
+      await tester.tap(find.text('现在结束'));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await tester.pump();
+    });
+    expect(deps.sessionLog.count, 1);
+    expect(deps.sessionLog.records.single.state, CardState.focusing);
+    // 区间自 now 重开：since 回到今天，避免下次写入重复计入
+    expect(SessionStats.sameDay(deps.machine.state.since, DateTime.now()),
+        isTrue);
   });
 
   testWidgets('T3.5 语言热切换：zh→en 标签即时变英文', (tester) async {

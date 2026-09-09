@@ -186,6 +186,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recordsEmpty => '切换一次状态，这里就会出现第一条会话';
 
   @override
+  String get focusToday => '今日专注';
+
+  @override
+  String streakDays(int n) {
+    return '连续 $n 天';
+  }
+
+  @override
+  String get sessionsHeader => '会话';
+
+  @override
+  String get todayEmpty => '今天还没有会话';
+
+  @override
+  String get openSessionTitle => '还在专注吗？';
+
+  @override
+  String openSessionBody(String state, String time) {
+    return '卡片从 $time 起一直显示「$state」。';
+  }
+
+  @override
+  String get endNow => '现在结束';
+
+  @override
+  String get stillGoing => '仍在继续';
+
+  @override
   String get errTimeout => '没有读到卡片，请把手机贴紧卡片中央再试';
 
   @override
