@@ -110,7 +110,9 @@ class StatusScreen extends StatelessWidget {
   }
 }
 
-/// 「现在」卡：当前已提交状态的迷你预览（S4）+ 上卡时间。
+/// 「我的卡现在是什么」英雄位（v3，2026-09-09 用户评审）：
+/// 屏1 第一对象 = 卡对象本身。已写卡 → 真实位图 + meta；
+/// 未写卡 → 空白纸卡 + NOT ON CARD YET（诚实优先）。
 class _NowCard extends StatefulWidget {
   final AppDeps deps;
   const _NowCard({required this.deps});
@@ -172,61 +174,49 @@ class _NowCardState extends State<_NowCard> {
     final l = AppLocalizations.of(context);
     final s = widget.deps.machine.state;
     final zh = widget.deps.isZh;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(T.s2),
-      decoration: BoxDecoration(
-        color: T.paper,
-        borderRadius: BorderRadius.circular(T.rCard),
-        border: Border.all(color: T.lineStrong), // 卡片对象外框
-      ),
-      child: Row(
-        children: [
-          if (_bitmap != null)
-            CardPreview(bitmap: _bitmap!, framed: false, compact: true)
-          else
-            const SizedBox(width: 148, height: 64),
-          const SizedBox(width: T.s2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.nowLabel.toUpperCase(), style: T.micro),
-                const SizedBox(height: T.s05),
-                Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: s.isCardSynced ? T.ink : T.inkSub,
-                      ),
-                    ),
-                    const SizedBox(width: T.s1),
-                    Flexible(
-                      child: Text(
-                        s.isCardSynced
-                            ? s.currentState.label(zh)
-                            : l.notWritten,
-                        style: T.title,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: T.s05),
-                Text(
-                  s.isCardSynced
-                      ? l.writtenAt(_hhmm(s.since))
-                      : l.notWrittenHint,
-                  style: s.isCardSynced ? T.meta : T.micro,
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.nowLabel.toUpperCase(), style: T.micro),
+        const SizedBox(height: T.s1),
+        // 卡对象：已写=真实位图；未写=空白纸卡+诚实标注
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            CardPreview(
+              bitmap: _bitmap ?? CardBitmap.blank(296, 128),
             ),
+            if (!s.isCardSynced)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l.notWritten,
+                      style: T.title.copyWith(color: T.inkSub)),
+                  const SizedBox(height: T.s05),
+                  Text(l.notWrittenHint, style: T.micro),
+                ],
+              ),
+          ],
+        ),
+        if (s.isCardSynced) ...[
+          const SizedBox(height: T.s1),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration:
+                    const BoxDecoration(shape: BoxShape.circle, color: T.ink),
+              ),
+              const SizedBox(width: T.s1),
+              Text(s.currentState.label(zh),
+                  style: T.body.copyWith(fontWeight: FontWeight.w700)),
+              const Spacer(),
+              Text(l.writtenAt(_hhmm(s.since)), style: T.meta),
+            ],
           ),
         ],
-      ),
+      ],
     );
   }
 }
