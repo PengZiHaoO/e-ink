@@ -20,6 +20,9 @@ const _gridStates = [
   CardState.namecard,
 ];
 
+String _hhmm(DateTime t) =>
+    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
 IconData stateIcon(CardState s) => switch (s) {
       CardState.focusing => Icons.center_focus_strong,
       CardState.onBreak => Icons.free_breakfast_outlined,
@@ -34,6 +37,14 @@ class StatusScreen extends StatelessWidget {
 
   bool _isCurrent(CardState s) =>
       deps.machine.state.isCardSynced && deps.machine.state.currentState == s;
+
+  /// 格 caption：当前态 = 时间 meta（"00:18 起"/"SINCE 00:18"，无术语）；
+  /// 英雄位非当前 = 行动提示；其余 = 无
+  String? _captionFor(AppLocalizations l, CardState s) {
+    if (_isCurrent(s)) return l.since(_hhmm(deps.machine.state.since));
+    if (s == CardState.focusing) return l.flipHint;
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +80,7 @@ class StatusScreen extends StatelessWidget {
                       child: _StateCell(
                         state: CardState.focusing,
                         isCurrent: _isCurrent(CardState.focusing),
-                        hint: l.flipHint,
+                        hint: _captionFor(l, CardState.focusing),
                         zh: deps.isZh,
                         horizontal: true,
                         onTap: () => _openWrite(context, CardState.focusing),
@@ -89,6 +100,7 @@ class StatusScreen extends StatelessWidget {
                             state: s,
                             isCurrent: _isCurrent(s),
                             zh: deps.isZh,
+                            hint: _captionFor(l, s),
                             onTap: () => _openWrite(context, s),
                           ),
                       ],
@@ -166,9 +178,6 @@ class _NowCardState extends State<_NowCard> {
     });
   }
 
-  String _hhmm(DateTime t) =>
-      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -245,10 +254,9 @@ class _StateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
     final fg = _isHero ? T.onInk : T.ink;
     final subFg = _isHero ? T.onInkSub : T.inkSub;
-    final caption = isCurrent ? l.onCard : hint;
+    final caption = hint; // caption 语义由父层决定（当前=时间 meta / 英雄=行动提示）
     return Material(
       color: _isHero ? T.ink : T.paper,
       borderRadius: BorderRadius.circular(T.rCard),

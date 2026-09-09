@@ -106,6 +106,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onCard => 'on card';
 
   @override
+  String since(String time) {
+    return 'since $time';
+  }
+
+  @override
   String get flipHint => 'flip to write';
 
   @override

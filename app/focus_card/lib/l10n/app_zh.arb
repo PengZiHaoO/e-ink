@@ -33,6 +33,10 @@
   },
   "switchTitle": "切换状态",
   "onCard": "卡上",
+  "since": "{time} 起",
+  "@since": {
+    "placeholders": { "time": { "type": "String" } }
+  },
   "flipHint": "翻转即写入",
   "menuAbout": "关于",
   "menuProfile": "名片档案（M4）",

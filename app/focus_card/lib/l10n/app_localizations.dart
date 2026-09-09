@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'卡上'**
   String get onCard;
 
+  /// No description provided for @since.
+  ///
+  /// In zh, this message translates to:
+  /// **'{time} 起'**
+  String since(String time);
+
   /// No description provided for @flipHint.
   ///
   /// In zh, this message translates to:

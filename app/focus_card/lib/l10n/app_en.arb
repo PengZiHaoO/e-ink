@@ -33,6 +33,10 @@
   },
   "switchTitle": "Switch state",
   "onCard": "on card",
+  "since": "since {time}",
+  "@since": {
+    "placeholders": { "time": { "type": "String" } }
+  },
   "flipHint": "flip to write",
   "menuAbout": "About",
   "menuProfile": "Card profile (M4)",

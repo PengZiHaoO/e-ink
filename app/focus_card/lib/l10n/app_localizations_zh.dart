@@ -102,6 +102,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onCard => '卡上';
 
   @override
+  String since(String time) {
+    return '$time 起';
+  }
+
+  @override
   String get flipHint => '翻转即写入';
 
   @override
