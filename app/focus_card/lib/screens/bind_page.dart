@@ -95,7 +95,7 @@ class _BindPageState extends State<BindPage> {
                       Text(l.bindDiscoverHint,
                           style: T.body.copyWith(color: T.inkSub)),
                       const SizedBox(height: T.s1),
-                      Text(l.bindMockNote, style: T.caption),
+                      Text(l.bindMockNote, style: T.micro),
                     ],
                   ),
                 1 => Column(
@@ -106,7 +106,7 @@ class _BindPageState extends State<BindPage> {
                       const SizedBox(height: T.s3),
                       Text(l.bindFound, style: T.title),
                       const SizedBox(height: T.s1),
-                      Text('${l.bindUidPrefix} $_uid', style: T.caption),
+                      Text('${l.bindUidPrefix} $_uid', style: T.meta),
                       const SizedBox(height: T.s3),
                       TextField(
                         controller: _nameController,

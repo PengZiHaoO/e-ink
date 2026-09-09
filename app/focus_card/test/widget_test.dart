@@ -262,7 +262,7 @@ void main() {
     await deps.localeController.setLocale(const Locale('en'));
     await tester.pump();
     await tester.pump();
-    expect(find.text('Switch state'), findsOneWidget);
+    expect(find.text('SWITCH STATE'), findsOneWidget); // v2: micro 大写标签
     expect(find.text('Focus'), findsOneWidget); // 英雄位英文标签
     expect(find.text('Not on card yet'), findsOneWidget);
     await expectLater(find.byType(MaterialApp),

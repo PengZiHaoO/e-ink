@@ -213,12 +213,17 @@ class _WriteScreenState extends State<WriteScreen> {
                           : CardPreview(bitmap: prepared.bitmap),
                 ),
               ),
+              // 编辑器诚实：画布规格 meta（等宽）
+              Text(
+                '${widget.deps.profile.canvasW}×${widget.deps.profile.canvasH} · 1-BIT · RLE',
+                style: T.meta,
+              ),
               const SizedBox(height: T.s2),
               if (isMock)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(l.mockFailToggle, style: T.caption),
+                    Text(l.mockFailToggle.toUpperCase(), style: T.micro),
                     const SizedBox(width: T.s1),
                     Switch(
                       value: _mockFailureOn,
@@ -278,7 +283,7 @@ class _WriteScreenState extends State<WriteScreen> {
                     onPressed: _submit,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: T.ink,
-                      side: const BorderSide(color: T.line),
+                      side: const BorderSide(color: T.hairline),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(T.rButton),
                       ),
@@ -296,7 +301,7 @@ class _WriteScreenState extends State<WriteScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: T.accent,
                     foregroundColor: T.onAccent,
-                    disabledBackgroundColor: T.line.withValues(alpha: 0.3),
+                    disabledBackgroundColor: T.hairline,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(T.rButton),
                     ),

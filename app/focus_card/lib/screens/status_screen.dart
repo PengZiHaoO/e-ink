@@ -61,13 +61,11 @@ class StatusScreen extends StatelessWidget {
                     const SizedBox(height: T.s2),
                     _NowCard(deps: deps),
                     const SizedBox(height: T.s3),
-                    Text(l.switchTitle,
-                        style: T.body.copyWith(color: T.inkSub)),
+                    Text(l.switchTitle.toUpperCase(), style: T.micro),
                     const SizedBox(height: T.s2),
-                    // 专注 = 英雄位：整行 + 翻转即写入提示
-                    SizedBox(
-                      width: double.infinity,
-                      height: 72,
+                    // 专注 = 英雄位：实底墨卡（衣橱里抽出的那张），物理卡比例
+                    AspectRatio(
+                      aspectRatio: T.cardAspect,
                       child: _StateCell(
                         state: CardState.focusing,
                         isCurrent: _isCurrent(CardState.focusing),
@@ -84,7 +82,7 @@ class StatusScreen extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: T.s2,
                       crossAxisSpacing: T.s2,
-                      childAspectRatio: 1.8,
+                      childAspectRatio: T.cardAspect, // 数字衣橱：格=卡
                       children: [
                         for (final s in _gridStates)
                           _StateCell(
@@ -180,7 +178,7 @@ class _NowCardState extends State<_NowCard> {
       decoration: BoxDecoration(
         color: T.paper,
         borderRadius: BorderRadius.circular(T.rCard),
-        border: Border.all(color: T.line),
+        border: Border.all(color: T.lineStrong), // 卡片对象外框
       ),
       child: Row(
         children: [
@@ -193,7 +191,7 @@ class _NowCardState extends State<_NowCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.nowLabel, style: T.caption),
+                Text(l.nowLabel.toUpperCase(), style: T.micro),
                 const SizedBox(height: T.s05),
                 Row(
                   children: [
@@ -202,7 +200,7 @@ class _NowCardState extends State<_NowCard> {
                       height: 10,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: s.isCardSynced ? T.ink : T.line,
+                        color: s.isCardSynced ? T.ink : T.inkSub,
                       ),
                     ),
                     const SizedBox(width: T.s1),
@@ -222,7 +220,7 @@ class _NowCardState extends State<_NowCard> {
                   s.isCardSynced
                       ? l.writtenAt(_hhmm(s.since))
                       : l.notWrittenHint,
-                  style: T.caption,
+                  style: s.isCardSynced ? T.meta : T.micro,
                 ),
               ],
             ),
@@ -233,7 +231,9 @@ class _NowCardState extends State<_NowCard> {
   }
 }
 
-/// 状态按钮格。视觉语义：状态强调=墨黑 monochrome；橙色=行动色专用。
+/// 状态卡格（数字衣橱）：每格 = 物理卡比例的卡片对象。
+/// 英雄（专注）= 实底墨卡（抽出的那张）；其余 = 发丝线描边；
+/// 当前 = 墨描边 + ON CARD 微标签 + 信号点。
 class _StateCell extends StatelessWidget {
   final CardState state;
   final bool isCurrent;
@@ -251,45 +251,83 @@ class _StateCell extends StatelessWidget {
     this.hint,
   });
 
+  bool get _isHero => state == CardState.focusing;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final fg = _isHero ? T.onInk : T.ink;
+    final subFg = _isHero ? T.onInkSub : T.inkSub;
     final caption = isCurrent ? l.onCard : hint;
     return Material(
-      color: T.paper,
-      borderRadius: BorderRadius.circular(T.rButton),
+      color: _isHero ? T.ink : T.paper,
+      borderRadius: BorderRadius.circular(T.rCard),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(T.rButton),
+        borderRadius: BorderRadius.circular(T.rCard),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(T.rButton),
+            borderRadius: BorderRadius.circular(T.rCard),
             border: Border.all(
-                color: isCurrent ? T.ink : T.line, width: isCurrent ? 2 : 1),
+              color: _isHero ? T.ink : (isCurrent ? T.ink : T.hairline),
+              width: isCurrent && !_isHero ? 1.5 : 1,
+            ),
           ),
-          padding: const EdgeInsets.all(T.s1),
+          // 卡格=物理卡比例，竖向空间紧：格子内边距收紧，英雄位保持宽松
+          padding: EdgeInsets.all(horizontal ? T.s2 : T.s1),
           child: horizontal
               ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(stateIcon(state), color: T.ink, size: 24),
-                    const SizedBox(width: T.s1),
-                    Text(state.buttonLabel(zh),
-                        style: T.body.copyWith(fontWeight: FontWeight.w700)),
-                    if (caption != null) ...[
-                      const SizedBox(width: T.s1),
-                      Text('· $caption', style: T.caption),
-                    ],
+                    Icon(stateIcon(state), color: fg, size: 24),
+                    const SizedBox(width: T.s2),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(state.buttonLabel(zh),
+                              style: T.title.copyWith(color: fg)),
+                          if (caption != null) ...[
+                            const SizedBox(height: T.s05),
+                            Text(caption.toUpperCase(),
+                                style: T.micro.copyWith(color: subFg)),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isCurrent ? T.accent : T.onInkSub,
+                      ),
+                    ),
                   ],
                 )
               : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(stateIcon(state), color: T.ink, size: 28),
-                    const SizedBox(height: T.s1),
+                    Row(
+                      children: [
+                        Icon(stateIcon(state), color: fg, size: 20),
+                        const Spacer(),
+                        if (isCurrent)
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle, color: T.accent),
+                          ),
+                      ],
+                    ),
+                    const Spacer(),
                     Text(state.buttonLabel(zh),
-                        style: T.body.copyWith(fontWeight: FontWeight.w700)),
-                    if (caption != null) Text(caption, style: T.caption),
+                        style: T.body
+                            .copyWith(fontWeight: FontWeight.w700, color: fg)),
+                    if (caption != null)
+                      Text(caption.toUpperCase(),
+                          style: T.micro.copyWith(color: subFg)),
                   ],
                 ),
         ),
@@ -314,9 +352,10 @@ class _OverflowMenu extends StatelessWidget {
             applicationName: 'focus_card',
             applicationVersion: 'M1 · demo',
             children: [
-              Text('profile: ${deps.profile.profileId}', style: T.caption),
-              Text('writer: ${deps.isMock ? "Mock" : "NFC"}', style: T.caption),
-              Text(l.aboutTagline, style: T.caption),
+              Text('profile: ${deps.profile.profileId}', style: T.meta),
+              Text('writer: ${deps.isMock ? "Mock" : "NFC"}', style: T.meta),
+              Text(l.aboutTagline,
+                  style: T.body.copyWith(color: T.inkSub)),
             ],
           );
         } else if (v == 'lang') {
@@ -333,12 +372,13 @@ class _OverflowMenu extends StatelessWidget {
         PopupMenuItem(
           value: 'profile',
           enabled: false,
-          child: Text(l.menuProfile, style: T.caption),
+          child: Text(l.menuProfile,
+              style: T.body.copyWith(color: T.inkSub)),
         ),
         PopupMenuItem(
           value: 'unbind',
           enabled: false,
-          child: Text(l.menuUnbind, style: T.caption),
+          child: Text(l.menuUnbind, style: T.body.copyWith(color: T.inkSub)),
         ),
       ],
     );

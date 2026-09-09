@@ -90,7 +90,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     margin: const EdgeInsets.symmetric(horizontal: T.s1),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: i == _index ? T.accent : T.line,
+                      color: i == _index ? T.accent : T.inkSub,
                     ),
                   ),
               ],

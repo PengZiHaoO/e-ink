@@ -35,45 +35,46 @@ class RecordsScreen extends StatelessWidget {
                   children: [
                     Text(l.recordsTitle, style: T.title),
                     const SizedBox(height: T.s1),
-                    Text(l.recordsBuilding, style: T.caption),
+                    Text(l.recordsBuilding,
+                        style: T.body.copyWith(color: T.inkSub)),
                     const SizedBox(height: T.s3),
                     Text('${log.count}', style: T.display),
-                    Text(l.recordedSessions,
-                        style: T.body.copyWith(color: T.inkSub)),
+                    Text(l.recordedSessions.toUpperCase(), style: T.micro),
                     const SizedBox(height: T.s3),
                     if (log.records.isEmpty)
                       Text(l.recordsEmpty,
                           style: T.body.copyWith(color: T.inkSub))
                     else
-                      for (final r in log.records.reversed)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: T.s1),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: T.s2, vertical: T.s1),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(T.rButton),
-                            border: Border.all(color: T.line),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: r.state.isFocus ? T.ink : T.inkSub,
+                      // 编辑感账本：发丝线表行（非盒装容器）
+                      ...[
+                        for (final r in log.records.reversed) ...[
+                          const Divider(height: 1),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: T.s2),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: r.state.isFocus ? T.ink : T.inkSub,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: T.s1),
-                              Text(r.state.buttonLabel(zh), style: T.body),
-                              const Spacer(),
-                              Text(
-                                '${_hhmm(r.start)}–${_hhmm(r.end)} · ${r.duration.inMinutes}m',
-                                style: T.caption,
-                              ),
-                            ],
+                                const SizedBox(width: T.s2),
+                                Text(r.state.buttonLabel(zh), style: T.body),
+                                const Spacer(),
+                                Text(
+                                  '${_hhmm(r.start)}–${_hhmm(r.end)} · ${r.duration.inMinutes}m',
+                                  style: T.meta,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
+                        const Divider(height: 1),
+                      ],
                   ],
                 ),
               ),

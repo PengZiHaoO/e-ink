@@ -80,7 +80,7 @@ class _DemoBanner extends StatelessWidget {
                 const BoxDecoration(shape: BoxShape.circle, color: T.accent),
           ),
           const SizedBox(width: T.s1),
-          Text(l.demoBanner, style: T.caption),
+          Text(l.demoBanner, style: T.micro),
         ],
       ),
     );

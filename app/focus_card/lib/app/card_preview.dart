@@ -131,10 +131,10 @@ class _CardPreviewState extends State<CardPreview> {
           decoration: BoxDecoration(
             color: T.paper,
             borderRadius: BorderRadius.circular(T.rCard),
-            border: Border.all(color: T.line),
+            border: Border.all(color: T.lineStrong), // 卡片对象外框
             boxShadow: [
               BoxShadow(
-                color: T.line.withValues(alpha: 0.25),
+                color: T.lineStrong.withValues(alpha: 0.25),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
