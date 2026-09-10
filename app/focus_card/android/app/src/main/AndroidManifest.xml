@@ -34,6 +34,14 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="application/x-focuscard"/>
             </intent-filter>
+            <!-- 认领空白/未配对的本产品卡（NFC-V 家族）：首页贴近静默忽略，
+                 抑制系统弹窗；非 NFC-V 卡（NTAG/MIFARE）不受影响 -->
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.techlists"
+                android:resource="@xml/nfc_tech_filter"/>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

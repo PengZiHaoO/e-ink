@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 认领 NFC-V（ISO15693）标签：我们的卡硬件家族。
+     空白/未配对的本产品卡在首页贴近时被本 App 静默认领，
+     抑制系统 TechListChooser 弹窗。NTAG(MIFARE/NFC-A) 等不受影响。 -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <tech-list>
+        <tech>android.nfc.tech.NfcV</tech>
+    </tech-list>
+</resources>
