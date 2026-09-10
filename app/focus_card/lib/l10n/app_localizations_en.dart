@@ -17,11 +17,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sticks to the back of your phone. No battery, no charging.\nOnce refreshed, the image stays forever.';
 
   @override
-  String get welcome2Title => 'Flip to write';
+  String get welcome2Title => 'Flip to focus';
 
   @override
   String get welcome2Desc =>
-      'Pick a state, flip your phone onto the card.\nSeconds later the card shows your current state.';
+      'Flip face-down 3s to focus.\nPick up to end — card rewrites itself.';
 
   @override
   String get welcome3Title => 'An automatic log';
@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notWritten => 'Not on card yet';
 
   @override
-  String get notWrittenHint => 'Pick a state below, flip to write';
+  String get notWrittenHint => 'pick a state, tap to write';
 
   @override
   String writtenAt(String time) {
@@ -111,7 +111,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get flipHint => 'flip to write';
+  String get flipHint => 'flip to focus · pickup ends';
 
   @override
   String get menuAbout => 'About';
@@ -136,8 +136,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get writeTitle => 'Write to card';
 
   @override
-  String get guideAuto =>
-      'Flip your phone onto the card — writing automatically';
+  String get guideAuto => 'writing… flip to show when done';
 
   @override
   String get guideMock => 'Demo mode: tap \"Write to card\" to simulate';
@@ -146,7 +145,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mockFailToggle => 'Simulate write failure';
 
   @override
-  String get guideManual => 'Flip your phone onto the card';
+  String get guideManual => 'one tap — card updates instantly';
 
   @override
   String get addMessageFirst => 'Add a message first?';
@@ -216,7 +215,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get retryHint => 'Remove the card, tap retry, then tap again';
+  String get retryHint => 'tap retry to write again';
 
   @override
   String get endNow => 'End it now';
@@ -268,4 +267,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errUnknown => 'Write failed — please retry';
+
+  @override
+  String get postureFocusStarted => 'Focus started (phone face-down)';
+
+  @override
+  String get postureFocusEnded => 'Focus ended (phone picked up)';
 }

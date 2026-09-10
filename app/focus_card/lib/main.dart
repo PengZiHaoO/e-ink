@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'app/app.dart';
 import 'app/deps.dart';
 import 'app/nfc_intent_router.dart';
+import 'app/posture_watcher.dart';
 import 'app/theme.dart';
 
 void main() {
@@ -29,10 +30,19 @@ class _BootstrapState extends State<Bootstrap> {
     _init();
   }
 
+  PostureWatcher? _posture;
+
   Future<void> _init() async {
     final deps = await AppDeps.create();
     NfcIntentRouter.attach(deps); // 认领意图路由（未配对→配对流/同源→屏2）
+    _posture = PostureWatcher(deps: deps)..attach(); // T9 姿态规则机
     if (mounted) setState(() => _deps = deps);
+  }
+
+  @override
+  void dispose() {
+    _posture?.dispose();
+    super.dispose();
   }
 
   @override

@@ -16,10 +16,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get welcome1Desc => '贴在手机背面，无电池、不充电，\n画面一旦刷新就永久保持。';
 
   @override
-  String get welcome2Title => '翻转即写';
+  String get welcome2Title => '扣下专注';
 
   @override
-  String get welcome2Desc => '选一个状态，翻转手机贴住卡片，\n几秒后卡片就是你现在的状态。';
+  String get welcome2Desc => '手机扣下 3 秒自动专注；\n拿起手机自动结束并重写卡片。';
 
   @override
   String get welcome3Title => '自动成账本';
@@ -88,7 +88,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notWritten => '还没写过卡';
 
   @override
-  String get notWrittenHint => '选一个状态，翻转贴卡开始';
+  String get notWrittenHint => '选一个状态，一触写入';
 
   @override
   String writtenAt(String time) {
@@ -107,7 +107,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get flipHint => '翻转即写入';
+  String get flipHint => '扣下专注 · 拿起结束';
 
   @override
   String get menuAbout => '关于';
@@ -131,7 +131,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get writeTitle => '写入卡片';
 
   @override
-  String get guideAuto => '翻转手机，贴住卡片，自动写入中';
+  String get guideAuto => '自动写入中 · 完成后翻转示人';
 
   @override
   String get guideMock => '演示模式：点「写入卡片」模拟完整流程';
@@ -140,7 +140,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mockFailToggle => '模拟写入失败';
 
   @override
-  String get guideManual => '翻转手机，贴住卡片';
+  String get guideManual => '一触写入，卡片即时更新';
 
   @override
   String get addMessageFirst => '先加留言？';
@@ -208,7 +208,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get retryHint => '移除卡片，点重试后再贴一次';
+  String get retryHint => '点重试即重写';
 
   @override
   String get endNow => '现在结束';
@@ -257,4 +257,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errUnknown => '写入失败，请重试';
+
+  @override
+  String get postureFocusStarted => '已自动专注（手机扣下）';
+
+  @override
+  String get postureFocusEnded => '专注已结束（拿起手机）';
 }

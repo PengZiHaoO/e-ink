@@ -74,7 +74,12 @@ class MockCardWriter implements CardWriter {
 
   @override
   Future<WriteResult> write(Uint8List payload) async {
-    await Future<void>.delayed(delay);
+    // zero 延迟走 microtask（fake-async 测试可驱动；生产无感）
+    if (delay == Duration.zero) {
+      await Future<void>.value();
+    } else {
+      await Future<void>.delayed(delay);
+    }
     if (failureRate > 0 && _random.nextDouble() < failureRate) {
       return const WriteFailure(WriteErrorKind.timeout, detail: 'mock: 模拟耦合超时');
     }

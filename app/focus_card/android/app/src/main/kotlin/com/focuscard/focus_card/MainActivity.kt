@@ -17,13 +17,26 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private var channel: MethodChannel? = null
     private var pending: Intent? = null
+    private var posture: PostureListener? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        posture = PostureListener(this,
+            MethodChannel(flutterEngine.dartExecutor.binaryMessenger, POSTURE_CHANNEL))
         // 热启动排队意图 + 冷启动 launching intent
         pending?.let { send(it); pending = null }
         intent?.let { if (isNfcIntent(it)) send(it) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        posture?.start() // 姿态监听仅前台（T9 范围）
+    }
+
+    override fun onPause() {
+        super.onPause()
+        posture?.stop()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -49,5 +62,6 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val CHANNEL = "focus_card/nfc_intent"
+        private const val POSTURE_CHANNEL = "focus_card/posture"
     }
 }

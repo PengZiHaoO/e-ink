@@ -113,13 +113,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcome2Title.
   ///
   /// In zh, this message translates to:
-  /// **'翻转即写'**
+  /// **'扣下专注'**
   String get welcome2Title;
 
   /// No description provided for @welcome2Desc.
   ///
   /// In zh, this message translates to:
-  /// **'选一个状态，翻转手机贴住卡片，\n几秒后卡片就是你现在的状态。'**
+  /// **'手机扣下 3 秒自动专注；\n拿起手机自动结束并重写卡片。'**
   String get welcome2Desc;
 
   /// No description provided for @welcome3Title.
@@ -257,7 +257,7 @@ abstract class AppLocalizations {
   /// No description provided for @notWrittenHint.
   ///
   /// In zh, this message translates to:
-  /// **'选一个状态，翻转贴卡开始'**
+  /// **'选一个状态，一触写入'**
   String get notWrittenHint;
 
   /// No description provided for @writtenAt.
@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @flipHint.
   ///
   /// In zh, this message translates to:
-  /// **'翻转即写入'**
+  /// **'扣下专注 · 拿起结束'**
   String get flipHint;
 
   /// No description provided for @menuAbout.
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideAuto.
   ///
   /// In zh, this message translates to:
-  /// **'翻转手机，贴住卡片，自动写入中'**
+  /// **'自动写入中 · 完成后翻转示人'**
   String get guideAuto;
 
   /// No description provided for @guideMock.
@@ -353,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideManual.
   ///
   /// In zh, this message translates to:
-  /// **'翻转手机，贴住卡片'**
+  /// **'一触写入，卡片即时更新'**
   String get guideManual;
 
   /// No description provided for @addMessageFirst.
@@ -473,7 +473,7 @@ abstract class AppLocalizations {
   /// No description provided for @retryHint.
   ///
   /// In zh, this message translates to:
-  /// **'移除卡片，点重试后再贴一次'**
+  /// **'点重试即重写'**
   String get retryHint;
 
   /// No description provided for @endNow.
@@ -571,6 +571,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'写入失败，请重试'**
   String get errUnknown;
+
+  /// No description provided for @postureFocusStarted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已自动专注（手机扣下）'**
+  String get postureFocusStarted;
+
+  /// No description provided for @postureFocusEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'专注已结束（拿起手机）'**
+  String get postureFocusEnded;
 }
 
 class _AppLocalizationsDelegate

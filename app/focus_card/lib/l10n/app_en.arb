@@ -2,8 +2,8 @@
   "@@locale": "en",
   "welcome1Title": "Your status card",
   "welcome1Desc": "Sticks to the back of your phone. No battery, no charging.\nOnce refreshed, the image stays forever.",
-  "welcome2Title": "Flip to write",
-  "welcome2Desc": "Pick a state, flip your phone onto the card.\nSeconds later the card shows your current state.",
+  "welcome2Title": "Flip to focus",
+  "welcome2Desc": "Flip face-down 3s to focus.\nPick up to end — card rewrites itself.",
   "welcome3Title": "An automatic log",
   "welcome3Desc": "Every switch leaves a record.\nSee exactly how long you focused.",
   "skip": "Skip",
@@ -26,18 +26,26 @@
   "statusTitle": "Status",
   "nowLabel": "Now",
   "notWritten": "Not on card yet",
-  "notWrittenHint": "Pick a state below, flip to write",
+  "notWrittenHint": "pick a state, tap to write",
   "writtenAt": "Written at {time}",
   "@writtenAt": {
-    "placeholders": { "time": { "type": "String" } }
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   },
   "switchTitle": "Switch state",
   "onCard": "on card",
   "since": "since {time}",
   "@since": {
-    "placeholders": { "time": { "type": "String" } }
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   },
-  "flipHint": "flip to write",
+  "flipHint": "flip to focus · pickup ends",
   "menuAbout": "About",
   "menuProfile": "Card profile (M4)",
   "menuUnbind": "Unbind card (M3)",
@@ -45,16 +53,20 @@
   "aboutTagline": "Status card, focus first — make your state visible",
   "writeTitleCard": "Card preview",
   "writeTitle": "Write to card",
-  "guideAuto": "Flip your phone onto the card — writing automatically",
+  "guideAuto": "writing… flip to show when done",
   "guideMock": "Demo mode: tap \"Write to card\" to simulate",
   "mockFailToggle": "Simulate write failure",
-  "guideManual": "Flip your phone onto the card",
+  "guideManual": "one tap — card updates instantly",
   "addMessageFirst": "Add a message first?",
   "messageLabel": "Message (optional)",
   "messageHelper": "e.g. Available after 15:30",
   "messageTooLong": "Message max {max} chars",
   "@messageTooLong": {
-    "placeholders": { "max": { "type": "int" } }
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "writing": "Writing…",
   "writeButton": "Write to card",
@@ -62,7 +74,11 @@
   "updated": "Updated",
   "updatedSub": "Card now shows \"{state}\"",
   "@updatedSub": {
-    "placeholders": { "state": { "type": "String" } }
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
   },
   "recordsTitle": "Log",
   "recordsBuilding": "Stats page under construction (M2) — sessions are being logged silently",
@@ -71,7 +87,11 @@
   "focusToday": "Focus today",
   "streakDays": "{n}-day streak",
   "@streakDays": {
-    "placeholders": { "n": { "type": "int" } }
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   },
   "sessionsHeader": "Sessions",
   "todayEmpty": "No sessions yet today",
@@ -79,11 +99,15 @@
   "openSessionBody": "Card has shown \"{state}\" since {time}.",
   "@openSessionBody": {
     "placeholders": {
-      "state": { "type": "String" },
-      "time": { "type": "String" }
+      "state": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
     }
   },
-  "retryHint": "Remove the card, tap retry, then tap again",
+  "retryHint": "tap retry to write again",
   "endNow": "End it now",
   "stillGoing": "Still going",
   "profileSheetTitle": "Card profile",
@@ -99,5 +123,7 @@
   "errCanceled": "Write canceled",
   "errNfcDisabled": "NFC is off — enable it in system settings",
   "errTagLost": "Card moved during write — hold still and retry",
-  "errUnknown": "Write failed — please retry"
+  "errUnknown": "Write failed — please retry",
+  "postureFocusStarted": "Focus started (phone face-down)",
+  "postureFocusEnded": "Focus ended (phone picked up)"
 }

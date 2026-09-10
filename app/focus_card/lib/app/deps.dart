@@ -80,14 +80,15 @@ class AppDeps {
     LocaleController? localeController,
     int deviceId = 0x00000001,
     DateTime Function()? clock,
-  })  : renderer = CardRenderer(profile),
+    CardRenderer? rendererOverride, // 测试注入即时渲染器（绕开引擎异步）
+  })  : renderer = rendererOverride ?? CardRenderer(profile),
         sessionRepository = sessionRepository ?? MemorySessionRepository(),
         userProfile = userProfile ?? const UserProfile(),
         localeController = localeController ?? LocaleController(),
         isMock = writer is MockCardWriter,
         orchestrator = WriteOrchestrator(
           profile: profile,
-          renderer: CardRenderer(profile),
+          renderer: rendererOverride ?? CardRenderer(profile),
           writer: writer,
           machine: machine,
           deviceId: deviceId,
