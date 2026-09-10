@@ -14,11 +14,12 @@ import 'package:flutter/foundation.dart'
 
 import '../write/nfc_card_writer.dart';
 
-/// 写入错误七分类（W3 真机实现将 nfc_manager 异常映射至此；用户文案见 W4）
+/// 写入错误分类（W3 真机实现将 nfc_manager 异常映射至此；用户文案见 W4）
 enum WriteErrorKind {
   timeout, // 会话超时/耦合差
   capacity, // 标签容量不足（W5 预检也会直接给这个）
   readOnly, // 标签被写保护
+  notNdef, // 非 NDEF 卡（加密卡/银行卡/门禁卡等）
   canceled, // 用户取消（iOS 弹窗点取消）
   nfcDisabled, // 系统 NFC 未开启（N2 引导）
   tagLost, // 写入中途标签离场

@@ -241,6 +241,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errReadOnly => '卡片已被写保护，无法更新';
 
   @override
+  String get errNotNdef => '这张卡不是可写的 NDEF 卡（加密卡/银行卡/门禁卡等）';
+
+  @override
   String get errCanceled => '已取消写入';
 
   @override

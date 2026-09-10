@@ -23,6 +23,7 @@ String errorCopy(WriteErrorKind kind, AppLocalizations l) => switch (kind) {
       WriteErrorKind.timeout => l.errTimeout,
       WriteErrorKind.capacity => l.errCapacity,
       WriteErrorKind.readOnly => l.errReadOnly,
+      WriteErrorKind.notNdef => l.errNotNdef,
       WriteErrorKind.canceled => l.errCanceled,
       WriteErrorKind.nfcDisabled => l.errNfcDisabled,
       WriteErrorKind.tagLost => l.errTagLost,

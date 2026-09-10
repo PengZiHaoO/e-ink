@@ -251,6 +251,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errReadOnly => 'Card is write-protected';
 
   @override
+  String get errNotNdef =>
+      'Not a writable NDEF card (encrypted / bank / access card)';
+
+  @override
   String get errCanceled => 'Write canceled';
 
   @override

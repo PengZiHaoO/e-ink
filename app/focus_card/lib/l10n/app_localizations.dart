@@ -536,6 +536,12 @@ abstract class AppLocalizations {
   /// **'卡片已被写保护，无法更新'**
   String get errReadOnly;
 
+  /// No description provided for @errNotNdef.
+  ///
+  /// In zh, this message translates to:
+  /// **'这张卡不是可写的 NDEF 卡（加密卡/银行卡/门禁卡等）'**
+  String get errNotNdef;
+
   /// No description provided for @errCanceled.
   ///
   /// In zh, this message translates to:

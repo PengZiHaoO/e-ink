@@ -94,6 +94,7 @@
   "errTimeout": "Can't read the card — press the phone firmly on the card center and retry",
   "errCapacity": "Content exceeds card capacity — try a shorter message",
   "errReadOnly": "Card is write-protected",
+  "errNotNdef": "Not a writable NDEF card (encrypted / bank / access card)",
   "errCanceled": "Write canceled",
   "errNfcDisabled": "NFC is off — enable it in system settings",
   "errTagLost": "Card moved during write — hold still and retry",

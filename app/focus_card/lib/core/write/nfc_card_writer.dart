@@ -12,6 +12,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:ndef_record/ndef_record.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_ios.dart'
@@ -22,6 +23,9 @@ import '../hal/card_writer.dart';
 
 /// 我们的 NDEF MIME 类型（写入与回读校验共用）
 const String focusCardMime = 'application/x-focuscard';
+
+/// 真机调试埋点（adb logcat 过滤 [NFC]）
+void _log(String m) => debugPrint('[NFC] $m');
 
 /// 无标签等待上限：超时 = 用户没贴卡（Android 无系统级回调，由此兜底）
 const Duration _discoverTimeout = Duration(seconds: 20);
@@ -37,13 +41,19 @@ class NfcCardWriter implements CardWriter {
 
   @override
   Future<WriteResult> write(Uint8List payload) async {
+    _log('write start, payload=${payload.length}B');
     if (!await isAvailable()) {
+      _log('FAIL nfcDisabled');
       return const WriteFailure(WriteErrorKind.nfcDisabled);
     }
 
     final result = Completer<WriteResult>();
 
     Future<void> finish(WriteResult r) async {
+      _log(switch (r) {
+        WriteSuccess(:final bytesWritten) => 'finish: OK ${bytesWritten}B',
+        WriteFailure(:final kind) => 'finish: FAIL ${kind.name}',
+      });
       if (!result.isCompleted) result.complete(r);
       try {
         await NfcManager.instance.stopSession();
@@ -59,21 +69,27 @@ class NfcCardWriter implements CardWriter {
         NfcPollingOption.iso15693,
       },
       onDiscovered: (tag) async {
+        _log('tag discovered');
         try {
           final ndef = Ndef.from(tag);
           if (ndef == null) {
-            await finish(const WriteFailure(WriteErrorKind.tagLost));
+            _log('FAIL notNdef（非 NDEF 卡：加密卡/银行卡/门禁卡）');
+            await finish(const WriteFailure(WriteErrorKind.notNdef));
             return;
           }
+          _log('ndef ok: writable=${ndef.isWritable} maxSize=${ndef.maxSize}');
           // 硬件侧复核（软件侧 W5 预检已在 orchestrator 做过）
           if (!ndef.isWritable) {
+            _log('FAIL readOnly');
             await finish(const WriteFailure(WriteErrorKind.readOnly));
             return;
           }
           if (ndef.maxSize < payload.length) {
+            _log('FAIL capacity: tag=${ndef.maxSize} < payload=${payload.length}');
             await finish(const WriteFailure(WriteErrorKind.capacity));
             return;
           }
+          _log('writing ${payload.length}B ...');
           await ndef.write(
             message: NdefMessage(records: [
               NdefRecord(
@@ -84,12 +100,15 @@ class NfcCardWriter implements CardWriter {
               ),
             ]),
           );
+          _log('write OK');
           await finish(WriteSuccess(payload.length));
         } catch (e) {
+          _log('FAIL unknown: $e');
           await finish(WriteFailure(WriteErrorKind.unknown, detail: '$e'));
         }
       },
       onSessionErrorIos: (error) {
+        _log('iOS session error: ${error.code} ${error.message}');
         if (result.isCompleted) return;
         result.complete(WriteFailure(_mapIosError(error.code)));
       },
@@ -98,6 +117,7 @@ class NfcCardWriter implements CardWriter {
     return result.future.timeout(
       _discoverTimeout,
       onTimeout: () {
+        _log('FAIL timeout（${_discoverTimeout.inSeconds}s 无标签）');
         if (!result.isCompleted) {
           result.complete(const WriteFailure(WriteErrorKind.timeout));
           NfcManager.instance.stopSession().catchError((_) {});
