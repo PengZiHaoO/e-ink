@@ -57,6 +57,10 @@ class AppDeps {
 
   /// P1 · 名片档案（可重载：sheet 保存后立即生效）
   UserProfile userProfile;
+
+  /// UI 状态标志（认领意图路由决策用）
+  bool homeReady = false;
+  bool writeScreenActive = false;
   final WriteOrchestrator orchestrator;
   final LocaleController localeController;
 

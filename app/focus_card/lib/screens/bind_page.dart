@@ -4,16 +4,17 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../app/deps.dart';
 import '../app/theme.dart';
 import '../core/device/card_binding.dart';
 import '../l10n/app_localizations.dart';
 
 class BindPage extends StatefulWidget {
   final VoidCallback onDone;
-  const BindPage({super.key, required this.onDone});
+
+  /// D1 真机配对：认领意图递来的真实 UID（优先于 mock）
+  final String? realUid;
+  const BindPage({super.key, required this.onDone, this.realUid});
 
   @override
   State<BindPage> createState() => _BindPageState();
@@ -22,7 +23,7 @@ class BindPage extends StatefulWidget {
 class _BindPageState extends State<BindPage> {
   /// 0=发现中 1=已发现（命名） 2=庆祝
   int _step = 0;
-  late final String _uid = CardBinding.mockUid();
+  late final String _uid = widget.realUid ?? CardBinding.mockUid();
   late TextEditingController _nameController;
   bool _nameInit = false;
   Timer? _timer;
@@ -56,15 +57,11 @@ class _BindPageState extends State<BindPage> {
   Future<void> _complete({required String name}) async {
     final l = AppLocalizations.of(context); // await 前捕获，避免跨异步用 context
     setState(() => _step = 2);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      PrefsKeys.binding,
-      CardBinding.encode(CardBinding(
-        uid: _uid,
-        name: name.trim().isEmpty ? l.bindDefaultName : name.trim(),
-        boundAt: DateTime.now(),
-      )),
-    );
+    await CardBindingStore.save(CardBinding(
+      uid: _uid,
+      name: name.trim().isEmpty ? l.bindDefaultName : name.trim(),
+      boundAt: DateTime.now(),
+    ));
     _timer = Timer(const Duration(milliseconds: 900), () {
       if (mounted) widget.onDone();
     });

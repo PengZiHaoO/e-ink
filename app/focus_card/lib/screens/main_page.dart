@@ -24,6 +24,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    widget.deps.homeReady = true; // 认领意图路由开门
     _maybePromptOpenSession();
   }
 

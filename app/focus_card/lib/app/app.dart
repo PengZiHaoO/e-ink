@@ -11,6 +11,7 @@ import '../screens/bind_page.dart';
 import '../screens/main_page.dart';
 import '../screens/welcome_page.dart';
 import 'deps.dart';
+import 'nfc_intent_router.dart';
 import 'theme.dart';
 
 class FocusCardApp extends StatelessWidget {
@@ -22,6 +23,7 @@ class FocusCardApp extends StatelessWidget {
     return ListenableBuilder(
       listenable: deps.localeController,
       builder: (context, _) => MaterialApp(
+        navigatorKey: AppNavigator.key,
         title: 'focus_card',
         debugShowCheckedModeBanner: false,
         theme: T.light(),

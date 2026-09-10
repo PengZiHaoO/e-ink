@@ -59,6 +59,7 @@ class _WriteScreenState extends State<WriteScreen> {
   @override
   void initState() {
     super.initState();
+    widget.deps.writeScreenActive = true; // 路由让位：会话拥有标签
     _prepare();
   }
 
@@ -67,6 +68,7 @@ class _WriteScreenState extends State<WriteScreen> {
     _debounce?.cancel();
     _popTimer?.cancel();
     _textController.dispose();
+    widget.deps.writeScreenActive = false;
     // 离开屏2 → 关 NFC 会话（会话=屏2 生命周期，抑制系统 dispatch 抢卡）
     widget.deps.writer.dispose();
     super.dispose();

@@ -7,6 +7,22 @@ library;
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+class CardBindingStore {
+  static const key = 'card_binding.v1';
+
+  static Future<CardBinding?> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    return CardBinding.decode(prefs.getString(key));
+  }
+
+  static Future<void> save(CardBinding binding) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, CardBinding.encode(binding));
+  }
+}
+
 class CardBinding {
   final String uid;
   final String name;
