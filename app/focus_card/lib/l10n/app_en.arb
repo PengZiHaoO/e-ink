@@ -83,6 +83,7 @@
       "time": { "type": "String" }
     }
   },
+  "retryHint": "Remove the card, tap retry, then tap again",
   "endNow": "End it now",
   "stillGoing": "Still going",
   "profileSheetTitle": "Card profile",

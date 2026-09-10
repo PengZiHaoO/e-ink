@@ -470,6 +470,12 @@ abstract class AppLocalizations {
   /// **'卡片从 {time} 起一直显示「{state}」。'**
   String openSessionBody(String state, String time);
 
+  /// No description provided for @retryHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除卡片，点重试后再贴一次'**
+  String get retryHint;
+
   /// No description provided for @endNow.
   ///
   /// In zh, this message translates to:

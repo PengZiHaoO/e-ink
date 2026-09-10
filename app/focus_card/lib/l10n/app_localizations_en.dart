@@ -216,6 +216,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get retryHint => 'Remove the card, tap retry, then tap again';
+
+  @override
   String get endNow => 'End it now';
 
   @override

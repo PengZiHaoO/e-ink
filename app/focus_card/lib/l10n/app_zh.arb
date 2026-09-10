@@ -83,6 +83,7 @@
       "time": { "type": "String" }
     }
   },
+  "retryHint": "移除卡片，点重试后再贴一次",
   "endNow": "现在结束",
   "stillGoing": "仍在继续",
   "profileSheetTitle": "名片档案",

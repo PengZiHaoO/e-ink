@@ -67,6 +67,8 @@ class _WriteScreenState extends State<WriteScreen> {
     _debounce?.cancel();
     _popTimer?.cancel();
     _textController.dispose();
+    // 离开屏2 → 关 NFC 会话（会话=屏2 生命周期，抑制系统 dispatch 抢卡）
+    widget.deps.writer.dispose();
     super.dispose();
   }
 
@@ -265,16 +267,23 @@ class _WriteScreenState extends State<WriteScreen> {
                     borderRadius: BorderRadius.circular(T.rButton),
                     border: Border.all(color: T.accent),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: T.accent, size: 24),
-                      const SizedBox(width: T.s1),
-                      Expanded(
-                        child: Text(
-                            errorCopy(_failure!.error!, l),
-                            style: T.body),
+                      Row(
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: T.accent, size: 24),
+                          const SizedBox(width: T.s1),
+                          Expanded(
+                            child: Text(
+                                errorCopy(_failure!.error!, l),
+                                style: T.body),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: T.s1),
+                      Text(l.retryHint, style: T.micro),
                     ],
                   ),
                 ),

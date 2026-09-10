@@ -208,6 +208,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get retryHint => '移除卡片，点重试后再贴一次';
+
+  @override
   String get endNow => '现在结束';
 
   @override
